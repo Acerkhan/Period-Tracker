@@ -30,8 +30,9 @@ let globalPeriodsCache = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     fetchAndRenderData();
-    // Dynamic label changes based on selection
-    actionTypeSelect.addEventListener("change", updateFormLabels);
+    if (actionTypeSelect) {
+        actionTypeSelect.addEventListener("change", updateFormLabels);
+    }
 });
 
 function updateFormLabels() {
@@ -50,76 +51,89 @@ form.addEventListener("submit", async (e) => {
     const action = actionTypeSelect.value;
     const selectedDate = singleDateInput.value;
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Saving to Cloud...";
-
-    if (action === "start") {
-        // Insert a new record with just start_date (end_date can be left null or empty)
-        const { error } = await db
-            .from('periods')
-            .insert([{ 
-                start_date: selectedDate, 
-                end_date: null,
-                flow: flowInput.value,
-                severity: severityInput.value,
-                mood: moodInput.value,
-                symptoms: symptomsInput.value ? symptomsInput.value.split(',').map(s => s.trim()) : []
-            }]);
-
-        if (error) alert("Error: " + error.message);
-    } 
-    else if (action === "end") {
-        // Find the latest active record that doesn't have an end_date yet
-        const latestOpen = globalPeriodsCache.find(p => !p.end_date);
-        
-        if (!latestOpen) {
-            alert("No active period found without an end date. Please log a 'Start Date' first!");
-        } else {
-            const { error } = await db
-                .from('periods')
-                .update({ end_date: selectedDate })
-                .eq('id', latestOpen.id);
-
-            if (error) alert("Error updating end date: " + error.message);
-        }
-    } 
-    else {
-        // Daily symptom log entry (can associate with latest start date or handle separately)
-        const { error } = await db
-            .from('periods')
-            .insert([{ 
-                start_date: selectedDate, 
-                end_date: selectedDate, // same day log marker
-                flow: flowInput.value,
-                severity: severityInput.value,
-                mood: moodInput.value,
-                symptoms: symptomsInput.value ? symptomsInput.value.split(',').map(s => s.trim()) : []
-            }]);
-
-        if (error) alert("Error logging daily entry: " + error.message);
-    }
-
-    form.reset();
-    updateFormLabels();
-    await fetchAndRenderData();
-
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Save Entry";
-});
-
-async function fetchAndRenderData() {
-    const { data: periods, error } = await db
-        .from('periods')
-        .select('*')
-        .order('start_date', { ascending: false });
-
-    if (error) {
-        historyList.innerHTML = `<li class="empty-state" style="color:red;">Failed to load data: ${error.message}</li>`;
+    if (!selectedDate) {
+        alert("Please select a valid date.");
         return;
     }
 
-    globalPeriodsCache = periods || [];
-    renderUI(globalPeriodsCache);
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Saving to Cloud...";
+
+    try {
+        let symptomsArr = [];
+        if (symptomsInput && symptomsInput.value) {
+            symptomsArr = symptomsInput.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        }
+
+        if (action === "start") {
+            const { error } = await db
+                .from('periods')
+                .insert([{ 
+                    start_date: selectedDate, 
+                    end_date: null,
+                    flow: flowInput ? flowInput.value : null,
+                    severity: severityInput ? severityInput.value : null,
+                    mood: moodInput ? moodInput.value : null,
+                    symptoms: symptomsArr
+                }]);
+
+            if (error) throw error;
+        } 
+        else if (action === "end") {
+            const latestOpen = globalPeriodsCache.find(p => !p.end_date);
+            
+            if (!latestOpen) {
+                alert("No active period found without an end date. Please log a 'Start Date' first!");
+            } else {
+                const { error } = await db
+                    .from('periods')
+                    .update({ end_date: selectedDate })
+                    .eq('id', latestOpen.id);
+
+                if (error) throw error;
+            }
+        } 
+        else {
+            const { error } = await db
+                .from('periods')
+                .insert([{ 
+                    start_date: selectedDate, 
+                    end_date: selectedDate,
+                    flow: flowInput ? flowInput.value : null,
+                    severity: severityInput ? severityInput.value : null,
+                    mood: moodInput ? moodInput.value : null,
+                    symptoms: symptomsArr
+                }]);
+
+            if (error) throw error;
+        }
+
+        form.reset();
+        updateFormLabels();
+        await fetchAndRenderData();
+    } catch (err) {
+        alert("Error saving entry: " + (err.message || err));
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Save Entry";
+    }
+});
+
+async function fetchAndRenderData() {
+    try {
+        const { data: periods, error } = await db
+            .from('periods')
+            .select('*')
+            .order('start_date', { ascending: false });
+
+        if (error) throw error;
+
+        globalPeriodsCache = periods || [];
+        renderUI(globalPeriodsCache);
+    } catch (err) {
+        historyList.innerHTML = `<li class="empty-state" style="color:red;">Failed to load data: ${err.message || err}</li>`;
+        currentPhaseEl.textContent = "Error";
+    }
 }
 
 window.deletePeriod = async function(id) {
@@ -138,10 +152,11 @@ window.deletePeriod = async function(id) {
 }
 
 function calculateDefaultCycleLength(periods) {
-    if (periods.length < 2) return 28;
+    if (!periods || periods.length < 2) return 28;
     
     let cycleDiffs = [];
     for (let i = 0; i < periods.length - 1; i++) {
+        if (!periods[i].start_date || !periods[i+1].start_date) continue;
         const currentStart = new Date(periods[i].start_date);
         const previousStart = new Date(periods[i+1].start_date);
         const diffDays = Math.ceil(Math.abs(currentStart - previousStart) / (1000 * 60 * 60 * 24));
@@ -176,13 +191,13 @@ function formatDateString(dateStr) {
 
 function renderUI(periods) {
     historyList.innerHTML = "";
-    if (periods.length === 0) {
+    if (!periods || periods.length === 0) {
         historyList.innerHTML = `<li class="empty-state">No cycle data found. Log your first dates above.</li>`;
         currentPhaseEl.textContent = "No Data";
         currentDayEl.textContent = "-";
         nextPeriodEl.textContent = "-";
         ovulationWindowEl.textContent = "-";
-        tipsCard.style.display = "none";
+        if (tipsCard) tipsCard.style.display = "none";
         return;
     }
 
@@ -194,7 +209,7 @@ function renderUI(periods) {
         if (p.flow) tagsHtml += `<span class="tag">Flow: ${p.flow}</span>`;
         if (p.severity && p.severity !== 'None') tagsHtml += `<span class="tag">Cramps: ${p.severity}</span>`;
         if (p.mood) tagsHtml += `<span class="tag">Mood: ${p.mood}</span>`;
-        if (p.symptoms && p.symptoms.length > 0) {
+        if (p.symptoms && Array.isArray(p.symptoms) && p.symptoms.length > 0) {
             p.symptoms.forEach(s => tagsHtml += `<span class="tag">${s}</span>`);
         }
 
@@ -209,6 +224,8 @@ function renderUI(periods) {
     });
 
     const latestPeriod = periods[0];
+    if (!latestPeriod || !latestPeriod.start_date) return;
+
     const avgCycleLength = calculateDefaultCycleLength(periods);
     
     const lastStart = new Date(latestPeriod.start_date);
@@ -269,12 +286,14 @@ function renderUI(periods) {
 }
 
 function renderPhaseTips(phase) {
-    tipsCard.style.display = "block";
+    if (tipsCard) tipsCard.style.display = "block";
     const simpleTips = {
         menstrual: "Take it easy today! Drink plenty of warm water, enjoy cozy comfort foods, use a heating pad if needed, and get extra rest to help your body recharge.",
         follicular: "Your energy is starting to bounce back! This is a great time to tackle new tasks, go for walks, catch up with friends, and start fresh projects.",
         ovulation: "You are likely feeling your best and most social right now! Enjoy higher energy levels, great moods, and make time for fun activities.",
         luteal: "You might notice energy slowing down a bit as your body prepares for the next cycle. Focus on comforting meals, relaxing wind-down routines, and gentle self-care."
     };
-    phaseTipsContent.textContent = simpleTips[phase] || "Keep tracking your daily updates to receive customized wellness tips!";
+    if (phaseTipsContent) {
+        phaseTipsContent.textContent = simpleTips[phase] || "Keep tracking your daily updates to receive customized wellness tips!";
+    }
 }
