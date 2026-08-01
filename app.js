@@ -228,7 +228,7 @@ function renderUI(periods) {
     const avgCycleLength = calculateDefaultCycleLength(periods);
     
     const lastStart = new Date(latestPeriod.start_date);
-    const lastEnd = latestPeriod.end_date ? new Date(latestPeriod.end_date) : new Date(lastStart);
+    const lastEnd = latestPeriod.end_date ? new Date(latestPeriod.end_date) : null;
     const today = new Date();
     today.setHours(0,0,0,0);
 
@@ -236,15 +236,17 @@ function renderUI(periods) {
 
     let currentPhaseKey = "";
     if (currentDay < 1) {
-        currentPhaseEl.textContent = "Upcoming Cycle";
-        currentDayEl.textContent = "Not started";
+        currentPhaseEl.textContent = "Menstrual Phase";
+        currentPhaseEl.style.color = "#f43f5e";
+        currentDayEl.textContent = "Day 1";
+        currentPhaseKey = "menstrual";
     } else {
         currentDayEl.textContent = `Day ${currentDay}`;
         
-        const bleedingDays = Math.max(
-            Math.floor((lastEnd - lastStart)/(1000*60*60*24)) + 1, 
-            5
-        );
+        const bleedingDays = lastEnd 
+            ? Math.max(Math.floor((lastEnd - lastStart)/(1000*60*60*24)) + 1, 5)
+            : 5; // Default to 5 days for active periods without an end date yet
+            
         const estimatedOvulationDay = avgCycleLength - 14;
 
         if (currentDay <= bleedingDays) {
