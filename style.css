@@ -95,6 +95,12 @@ form {
     gap: 14px;
 }
 
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
 .input-group {
     display: flex;
     flex-direction: column;
@@ -107,16 +113,17 @@ label {
     color: var(--text-main);
 }
 
-input[type="date"] {
+input[type="date"], input[type="text"], select {
     padding: 10px 12px;
     border-radius: 8px;
     border: 1px solid #d1d5db;
     font-size: 1rem;
     outline: none;
+    background: white;
     transition: border-color 0.2s;
 }
 
-input[type="date"]:focus {
+input[type="date"]:focus, input[type="text"]:focus, select:focus {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(217, 70, 239, 0.1);
 }
@@ -142,21 +149,42 @@ button:hover {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 200px;
+    max-height: 250px;
     overflow-y: auto;
 }
 
 .history-item {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 10px 12px;
+    align-items: flex-start;
+    padding: 12px;
     border-bottom: 1px solid #f3f4f6;
     font-size: 0.95rem;
 }
 
 .history-item:last-child {
     border-bottom: none;
+}
+
+.history-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+    margin-top: 2px;
+}
+
+.tag {
+    background: #f3e8ff;
+    color: #86198f;
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
 .delete-btn {
@@ -166,7 +194,6 @@ button:hover {
     cursor: pointer;
     font-size: 0.85rem;
     padding: 4px 8px;
-    margin: 0;
 }
 
 .delete-btn:hover {
