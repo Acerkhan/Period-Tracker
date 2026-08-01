@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cycle & Phase Tracker</title>
-    <!-- Supabase JS Client CDN -->
+    <title>Cycle, Mood & Phase Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -13,9 +12,22 @@
 <div class="container">
     <header>
         <h1>Cycle Tracker</h1>
-        <p>Synced with Supabase Cloud Database</p>
+        <p>Advanced Health, Mood & Phase Dashboard</p>
     </header>
 
+    <!-- Prediction Control Filter -->
+    <div class="card" style="background: #faf5ff; border: 1px solid var(--border);">
+        <label for="prediction-mode" style="font-weight: 600; color: #86198f; display: block; margin-bottom: 6px;">
+            ⚙️ Prediction Logic Profile (Dropdown Filter)
+        </label>
+        <select id="prediction-mode" style="width: 100%;">
+            <option value="standard">Standard Balanced (Default Weighted Average)</option>
+            <option value="regular">Strictly Regular (Tighter Window)</option>
+            <option value="irregular">Irregular / Variable (+3 Days Safety Buffer)</option>
+        </select>
+    </div>
+
+    <!-- Current Overview Panel -->
     <div class="card">
         <h2>Current Overview</h2>
         <div class="status-grid">
@@ -38,21 +50,58 @@
         </div>
     </div>
 
+    <!-- Phase Tips Panel -->
+    <div class="card" id="tips-card" style="display:none;">
+        <h2>💡 Phase Wellness Guide & Tips</h2>
+        <div id="phase-tips-content" style="font-size: 0.95rem; line-height: 1.5; color: var(--text-main);"></div>
+    </div>
+
+    <!-- Log Period Entry Form -->
     <div class="card">
-        <h2>Log Period Dates</h2>
+        <h2>Log Period Dates & Symptoms</h2>
         <form id="period-form">
-            <div class="input-group">
-                <label for="start-date">Start Date</label>
-                <input type="date" id="start-date" required>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="start-date">Start Date</label>
+                    <input type="date" id="start-date" required>
+                </div>
+                <div class="input-group">
+                    <label for="end-date">End Date</label>
+                    <input type="date" id="end-date" required>
+                </div>
             </div>
+
             <div class="input-group">
-                <label for="end-date">End Date</label>
-                <input type="date" id="end-date" required>
+                <label for="flow-intensity">Flow Intensity</label>
+                <select id="flow-intensity">
+                    <option value="Normal">Normal</option>
+                    <option value="Light">Light</option>
+                    <option value="Heavy">Heavy 🌧️</option>
+                    <option value="Spotting">Spotting</option>
+                </select>
             </div>
-            <button type="submit" id="submit-btn">Save Period Entry</button>
+
+            <div class="input-group">
+                <label for="mood-select">Primary Mood / Feeling</label>
+                <select id="mood-select">
+                    <option value="Calm & Balanced">Calm & Balanced 🌸</option>
+                    <option value="Energetic">Energetic ✨</option>
+                    <option value="Fatigued / Tired">Fatigued / Tired 🔋</option>
+                    <option value="Irritable / Sensitive">Irritable / Sensitive 🌧️</option>
+                    <option value="Anxious / Stressed">Anxious / Stressed 🌊</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="symptoms-input">Symptoms (comma separated)</label>
+                <input type="text" id="symptoms-input" placeholder="e.g., cramps, headache, bloating">
+            </div>
+
+            <button type="submit" id="submit-btn">Save Period & Log Entry</button>
         </form>
     </div>
 
+    <!-- Past Cycles History -->
     <div class="card">
         <h2>Past Cycles History</h2>
         <ul id="history-list" class="history-list">
@@ -61,7 +110,6 @@
     </div>
 </div>
 
-<!-- Link to external JavaScript file -->
 <script src="app.js"></script>
 </body>
 </html>
