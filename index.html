@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cycle & Phase Tracker</title>
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Cycle Tracker</h1>
+        <p>Synced with Supabase Cloud Database</p>
+    </header>
+
+    <div class="card">
+        <h2>Current Overview</h2>
+        <div class="status-grid">
+            <div class="status-box highlight">
+                <div class="status-label">Current Phase</div>
+                <div class="status-value" id="current-phase">Loading...</div>
+            </div>
+            <div class="status-box">
+                <div class="status-label">Cycle Day</div>
+                <div class="status-value" id="current-day">-</div>
+            </div>
+            <div class="status-box">
+                <div class="status-label">Next Period Expected</div>
+                <div class="status-value" id="next-period-date" style="font-size: 1.1rem;">-</div>
+            </div>
+            <div class="status-box highlight" style="grid-column: span 2;">
+                <div class="status-label">Estimated Ovulation Window</div>
+                <div class="status-value" id="ovulation-window" style="font-size: 1.1rem; color: #0284c7;">-</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Log Period Dates</h2>
+        <form id="period-form">
+            <div class="input-group">
+                <label for="start-date">Start Date</label>
+                <input type="date" id="start-date" required>
+            </div>
+            <div class="input-group">
+                <label for="end-date">End Date</label>
+                <input type="date" id="end-date" required>
+            </div>
+            <button type="submit" id="submit-btn">Save Period Entry</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Past Cycles History</h2>
+        <ul id="history-list" class="history-list">
+            <li class="empty-state">Loading data from Supabase...</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Link to external JavaScript file -->
+<script src="script.js"></script>
+</body>
+</html>
