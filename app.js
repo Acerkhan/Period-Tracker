@@ -60,10 +60,7 @@ form.addEventListener("submit", async (e) => {
     submitBtn.textContent = "Saving to Cloud...";
 
     try {
-        let symptomsArr = [];
-        if (symptomsInput && symptomsInput.value) {
-            symptomsArr = symptomsInput.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
-        }
+        const rawSymptoms = symptomsInput ? symptomsInput.value : null;
 
         if (action === "start") {
             const { error } = await db
@@ -74,7 +71,7 @@ form.addEventListener("submit", async (e) => {
                     flow: flowInput ? flowInput.value : null,
                     severity: severityInput ? severityInput.value : null,
                     mood: moodInput ? moodInput.value : null,
-                    symptoms: symptomsArr
+                    symptoms: rawSymptoms
                 }]);
 
             if (error) throw error;
@@ -102,7 +99,7 @@ form.addEventListener("submit", async (e) => {
                     flow: flowInput ? flowInput.value : null,
                     severity: severityInput ? severityInput.value : null,
                     mood: moodInput ? moodInput.value : null,
-                    symptoms: symptomsArr
+                    symptoms: rawSymptoms
                 }]);
 
             if (error) throw error;
@@ -209,8 +206,10 @@ function renderUI(periods) {
         if (p.flow) tagsHtml += `<span class="tag">Flow: ${p.flow}</span>`;
         if (p.severity && p.severity !== 'None') tagsHtml += `<span class="tag">Cramps: ${p.severity}</span>`;
         if (p.mood) tagsHtml += `<span class="tag">Mood: ${p.mood}</span>`;
-        if (p.symptoms && Array.isArray(p.symptoms) && p.symptoms.length > 0) {
-            p.symptoms.forEach(s => tagsHtml += `<span class="tag">${s}</span>`);
+        if (p.symptoms) {
+            p.symptoms.split(',').map(s => s.trim()).filter(s => s.length > 0).forEach(s => {
+                tagsHtml += `<span class="tag">${s}</span>`;
+            });
         }
 
         li.innerHTML = `
