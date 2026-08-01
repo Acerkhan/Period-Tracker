@@ -13,7 +13,6 @@ const flowInput = document.getElementById("flow-intensity");
 const severityInput = document.getElementById("symptom-severity");
 const moodInput = document.getElementById("mood-select");
 const symptomsInput = document.getElementById("symptoms-input");
-const predictionModeSelect = document.getElementById("prediction-mode");
 
 const historyList = document.getElementById("history-list");
 const submitBtn = document.getElementById("submit-btn");
@@ -25,16 +24,8 @@ const ovulationWindowEl = document.getElementById("ovulation-window");
 const tipsCard = document.getElementById("tips-card");
 const phaseTipsContent = document.getElementById("phase-tips-content");
 
-let globalPeriodsCache = [];
-
 document.addEventListener("DOMContentLoaded", () => {
     fetchAndRenderData();
-});
-
-predictionModeSelect.addEventListener("change", () => {
-    if (globalPeriodsCache.length > 0) {
-        renderUI(globalPeriodsCache);
-    }
 });
 
 form.addEventListener("submit", async (e) => {
@@ -69,7 +60,7 @@ form.addEventListener("submit", async (e) => {
     }
 
     submitBtn.disabled = false;
-    submitBtn.textContent = "Save Period & Log Entry";
+    submitBtn.textContent = "Save Entry";
 });
 
 async function fetchAndRenderData() {
@@ -83,8 +74,7 @@ async function fetchAndRenderData() {
         return;
     }
 
-    globalPeriodsCache = periods || [];
-    renderUI(globalPeriodsCache);
+    renderUI(periods || []);
 }
 
 window.deletePeriod = async function(id) {
@@ -102,8 +92,8 @@ window.deletePeriod = async function(id) {
     }
 }
 
-// Prediction logic incorporating weighted history + hardcoded dropdown factors
-function calculateCycleLengthWithDropdowns(periods, mode) {
+// Default optimized smart calculation (Weighted Moving Average + Symptom adjustments)
+function calculateDefaultCycleLength(periods) {
     if (periods.length < 2) return 28;
     
     let cycleDiffs = [];
@@ -126,24 +116,13 @@ function calculateCycleLengthWithDropdowns(periods, mode) {
         baseLength = Math.round(sum / cycleDiffs.length);
     }
 
+    // Built-in intelligent adjustment from recent dropdown logs
     const latestEntry = periods[0];
-    let dropdownBuffer = 0;
+    let adjustment = 0;
+    if (latestEntry && latestEntry.flow === "Heavy") adjustment += 1;
+    if (latestEntry && latestEntry.severity === "Severe") adjustment += 1;
 
-    // Hardcoded dropdown adjustments based on recent severity/flow logs
-    if (latestEntry.flow === "Heavy") {
-        dropdownBuffer += 1;
-    }
-    if (latestEntry.severity === "Severe") {
-        dropdownBuffer += 2;
-    }
-
-    if (mode === "regular") {
-        return cycleDiffs[0];
-    } else if (mode === "irregular") {
-        return baseLength + 3 + dropdownBuffer;
-    } else {
-        return baseLength + dropdownBuffer;
-    }
+    return baseLength + adjustment;
 }
 
 function formatDateString(dateStr) {
@@ -154,7 +133,7 @@ function formatDateString(dateStr) {
 function renderUI(periods) {
     historyList.innerHTML = "";
     if (periods.length === 0) {
-        historyList.innerHTML = `<li class="empty-state">No cycle data found in Supabase. Log your first dates above.</li>`;
+        historyList.innerHTML = `<li class="empty-state">No cycle data found. Log your first dates above.</li>`;
         currentPhaseEl.textContent = "No Data";
         currentDayEl.textContent = "-";
         nextPeriodEl.textContent = "-";
@@ -169,7 +148,7 @@ function renderUI(periods) {
         
         let tagsHtml = '';
         if (p.flow) tagsHtml += `<span class="tag">Flow: ${p.flow}</span>`;
-        if (p.severity && p.severity !== 'None') tagsHtml += `<span class="tag">Severity: ${p.severity}</span>`;
+        if (p.severity && p.severity !== 'None') tagsHtml += `<span class="tag">Cramps: ${p.severity}</span>`;
         if (p.mood) tagsHtml += `<span class="tag">Mood: ${p.mood}</span>`;
         if (p.symptoms && p.symptoms.length > 0) {
             p.symptoms.forEach(s => tagsHtml += `<span class="tag">${s}</span>`);
@@ -186,8 +165,7 @@ function renderUI(periods) {
     });
 
     const latestPeriod = periods[0];
-    const selectedMode = predictionModeSelect.value;
-    const avgCycleLength = calculateCycleLengthWithDropdowns(periods, selectedMode);
+    const avgCycleLength = calculateDefaultCycleLength(periods);
     
     const lastStart = new Date(latestPeriod.start_date);
     const lastEnd = new Date(latestPeriod.end_date);
@@ -210,7 +188,7 @@ function renderUI(periods) {
         const estimatedOvulationDay = avgCycleLength - 14;
 
         if (currentDay <= bleedingDays) {
-            currentPhaseEl.textContent = "Menstrual Phase (Period)";
+            currentPhaseEl.textContent = "Menstrual Phase";
             currentPhaseEl.style.color = "#f43f5e";
             currentPhaseKey = "menstrual";
         } else if (currentDay < estimatedOvulationDay - 3) {
@@ -230,14 +208,7 @@ function renderUI(periods) {
 
     const nextPeriodDate = new Date(lastStart);
     nextPeriodDate.setDate(nextPeriodDate.getDate() + avgCycleLength);
-    
-    if (selectedMode === "irregular") {
-        const altPeriodDate = new Date(nextPeriodDate);
-        altPeriodDate.setDate(altPeriodDate.getDate() + 3);
-        nextPeriodEl.textContent = `${formatDateString(nextPeriodDate)} – ${formatDateString(altPeriodDate)}`;
-    } else {
-        nextPeriodEl.textContent = formatDateString(nextPeriodDate);
-    }
+    nextPeriodEl.textContent = formatDateString(nextPeriodDate);
 
     const ovulationDate = new Date(nextPeriodDate);
     ovulationDate.setDate(ovulationDate.getDate() - 14);
@@ -255,11 +226,13 @@ function renderUI(periods) {
 
 function renderPhaseTips(phase) {
     tipsCard.style.display = "block";
-    const tips = {
-        menstrual: "<strong>Rest & Nourish:</strong> Energy levels are naturally lower. Focus on iron-rich foods, warm herbal teas, gentle stretching, and adequate rest to support recovery.",
-        follicular: "<strong>Energy Rising:</strong> Estrogen is climbing back up. Great time for starting new projects, higher-intensity workouts, socializing, and creative brainstorming.",
-        ovulation: "<strong>Peak Energy & Glow:</strong> Communication and confidence are typically at their highest. Ideal for important conversations, active workouts, and social events.",
-        luteal: "<strong>Wind Down & Care:</strong> Progesterone peaks then drops, which can cause cravings or fatigue. Prioritize complex carbs, magnesium-rich snacks, self-care, and stress reduction."
+    // Simple, easy-to-understand general wellness tips
+    const simpleTips = {
+        menstrual: "Take it easy today! Drink plenty of warm water, enjoy cozy comfort foods, use a heating pad if needed, and get extra rest to help your body recharge.",
+        follicular: "Your energy is starting to bounce back! This is a great time to tackle new tasks, go for walks, catch up with friends, and start fresh projects.",
+        ovulation: "You are likely feeling your best and most social right now! Enjoy higher energy levels, great moods, and make time for fun activities.",
+        luseral: "luteal", // fallback check
+        luteal: "You might notice energy slowing down a bit as your body prepares for the next cycle. Focus on comforting meals, relaxing wind-down routines, and gentle self-care."
     };
-    phaseTipsContent.innerHTML = tips[phase] || "Track consistently to get tailored phase recommendations.";
+    phaseTipsContent.textContent = simpleTips[phase] || "Keep tracking your daily updates to receive customized wellness tips!";
 }
