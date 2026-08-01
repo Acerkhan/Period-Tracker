@@ -18,10 +18,10 @@
     <!-- Prediction Control Filter -->
     <div class="card" style="background: #faf5ff; border: 1px solid var(--border);">
         <label for="prediction-mode" style="font-weight: 600; color: #86198f; display: block; margin-bottom: 6px;">
-            ⚙️ Prediction Logic Profile (Dropdown Filter)
+            ⚙️ Prediction Logic Profile
         </label>
         <select id="prediction-mode" style="width: 100%;">
-            <option value="standard">Standard Balanced (Default Weighted Average)</option>
+            <option value="standard">Standard Balanced (Weighted Average + Factors)</option>
             <option value="regular">Strictly Regular (Tighter Window)</option>
             <option value="irregular">Irregular / Variable (+3 Days Safety Buffer)</option>
         </select>
@@ -71,14 +71,25 @@
                 </div>
             </div>
 
-            <div class="input-group">
-                <label for="flow-intensity">Flow Intensity</label>
-                <select id="flow-intensity">
-                    <option value="Normal">Normal</option>
-                    <option value="Light">Light</option>
-                    <option value="Heavy">Heavy 🌧️</option>
-                    <option value="Spotting">Spotting</option>
-                </select>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="flow-intensity">Flow Intensity</label>
+                    <select id="flow-intensity">
+                        <option value="Normal">Normal</option>
+                        <option value="Light">Light</option>
+                        <option value="Heavy">Heavy 🌧️ (+1 Day)</option>
+                        <option value="Spotting">Spotting</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="symptom-severity">Symptom Severity</label>
+                    <select id="symptom-severity">
+                        <option value="None">None / Mild</option>
+                        <option value="Moderate">Moderate Cramps/Fatigue</option>
+                        <option value="Severe">Severe ⚠️ (+2 Days)</option>
+                    </select>
+                </div>
             </div>
 
             <div class="input-group">
@@ -93,8 +104,8 @@
             </div>
 
             <div class="input-group">
-                <label for="symptoms-input">Symptoms (comma separated)</label>
-                <input type="text" id="symptoms-input" placeholder="e.g., cramps, headache, bloating">
+                <label for="symptoms-input">Additional Symptoms (comma separated)</label>
+                <input type="text" id="symptoms-input" placeholder="e.g., headache, bloating, cramps">
             </div>
 
             <button type="submit" id="submit-btn">Save Period & Log Entry</button>
