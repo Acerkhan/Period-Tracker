@@ -12,20 +12,8 @@
 <div class="container">
     <header>
         <h1>Cycle Tracker</h1>
-        <p>Advanced Health, Mood & Phase Dashboard</p>
+        <p>Your Daily Health, Mood & Phase Companion</p>
     </header>
-
-    <!-- Prediction Control Filter -->
-    <div class="card" style="background: #faf5ff; border: 1px solid var(--border);">
-        <label for="prediction-mode" style="font-weight: 600; color: #86198f; display: block; margin-bottom: 6px;">
-            ⚙️ Prediction Logic Profile
-        </label>
-        <select id="prediction-mode" style="width: 100%;">
-            <option value="standard">Standard Balanced (Weighted Average + Factors)</option>
-            <option value="regular">Strictly Regular (Tighter Window)</option>
-            <option value="irregular">Irregular / Variable (+3 Days Safety Buffer)</option>
-        </select>
-    </div>
 
     <!-- Current Overview Panel -->
     <div class="card">
@@ -52,7 +40,7 @@
 
     <!-- Phase Tips Panel -->
     <div class="card" id="tips-card" style="display:none;">
-        <h2>💡 Phase Wellness Guide & Tips</h2>
+        <h2>💡 Daily Wellness Tip</h2>
         <div id="phase-tips-content" style="font-size: 0.95rem; line-height: 1.5; color: var(--text-main);"></div>
     </div>
 
@@ -62,11 +50,11 @@
         <form id="period-form">
             <div class="input-row">
                 <div class="input-group">
-                    <label for="start-date">Start Date</label>
+                    <label for="start-date">Period Start Date</label>
                     <input type="date" id="start-date" required>
                 </div>
                 <div class="input-group">
-                    <label for="end-date">End Date</label>
+                    <label for="end-date">Period End Date</label>
                     <input type="date" id="end-date" required>
                 </div>
             </div>
@@ -77,23 +65,23 @@
                     <select id="flow-intensity">
                         <option value="Normal">Normal</option>
                         <option value="Light">Light</option>
-                        <option value="Heavy">Heavy 🌧️ (+1 Day)</option>
+                        <option value="Heavy">Heavy 🌧️</option>
                         <option value="Spotting">Spotting</option>
                     </select>
                 </div>
                 
                 <div class="input-group">
-                    <label for="symptom-severity">Symptom Severity</label>
+                    <label for="symptom-severity">Cramps / Body Pain</label>
                     <select id="symptom-severity">
-                        <option value="None">None / Mild</option>
-                        <option value="Moderate">Moderate Cramps/Fatigue</option>
-                        <option value="Severe">Severe ⚠️ (+2 Days)</option>
+                        <option value="None">Mild / None</option>
+                        <option value="Moderate">Moderate</option>
+                        <option value="Severe">Severe ⚠️</option>
                     </select>
                 </div>
             </div>
 
             <div class="input-group">
-                <label for="mood-select">Primary Mood / Feeling</label>
+                <label for="mood-select">How are you feeling today?</label>
                 <select id="mood-select">
                     <option value="Calm & Balanced">Calm & Balanced 🌸</option>
                     <option value="Energetic">Energetic ✨</option>
@@ -104,11 +92,11 @@
             </div>
 
             <div class="input-group">
-                <label for="symptoms-input">Additional Symptoms (comma separated)</label>
-                <input type="text" id="symptoms-input" placeholder="e.g., headache, bloating, cramps">
+                <label for="symptoms-input">Other Symptoms (comma separated)</label>
+                <input type="text" id="symptoms-input" placeholder="e.g., headache, bloating">
             </div>
 
-            <button type="submit" id="submit-btn">Save Period & Log Entry</button>
+            <button type="submit" id="submit-btn">Save Entry</button>
         </form>
     </div>
 
