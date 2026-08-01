@@ -2,6 +2,7 @@
 const SUPABASE_URL = "https://wfupmihrudgpegzykfao.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdXBtaWhydWRncGVnenlrZmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1Nzc1ODIsImV4cCI6MjEwMTE1MzU4Mn0.JTwOdPoL68DpXCJZyKiIjJvCj1auIe80NtVuSNITgD8";
 // ----------------------------------------------------
+
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -9,6 +10,7 @@ const form = document.getElementById("period-form");
 const startDateInput = document.getElementById("start-date");
 const endDateInput = document.getElementById("end-date");
 const flowInput = document.getElementById("flow-intensity");
+const severityInput = document.getElementById("symptom-severity");
 const moodInput = document.getElementById("mood-select");
 const symptomsInput = document.getElementById("symptoms-input");
 const predictionModeSelect = document.getElementById("prediction-mode");
@@ -29,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchAndRenderData();
 });
 
-// Re-render immediately when the dropdown selection changes
 predictionModeSelect.addEventListener("change", () => {
     if (globalPeriodsCache.length > 0) {
         renderUI(globalPeriodsCache);
@@ -55,6 +56,7 @@ form.addEventListener("submit", async (e) => {
             start_date: startDate, 
             end_date: endDate,
             flow: flowInput.value,
+            severity: severityInput.value,
             mood: moodInput.value,
             symptoms: symptomsInput.value ? symptomsInput.value.split(',').map(s => s.trim()) : []
         }]);
@@ -100,7 +102,8 @@ window.deletePeriod = async function(id) {
     }
 }
 
-function calculateCycleLength(periods, mode) {
+// Prediction logic incorporating weighted history + hardcoded dropdown factors
+function calculateCycleLengthWithDropdowns(periods, mode) {
     if (periods.length < 2) return 28;
     
     let cycleDiffs = [];
@@ -115,21 +118,31 @@ function calculateCycleLength(periods, mode) {
 
     if (cycleDiffs.length === 0) return 28;
 
-    // Adjust calculation logic based on the dropdown selection
-    if (mode === "regular") {
-        // Return minimum standard deviation or strict average of last 2
-        return cycleDiffs[0]; 
-    } else if (mode === "irregular") {
-        // Add a safety buffer to account for variance (+2 days)
-        const rawAvg = cycleDiffs.reduce((a, b) => a + b, 0) / cycleDiffs.length;
-        return Math.round(rawAvg + 2);
+    let baseLength;
+    if (cycleDiffs.length >= 3) {
+        baseLength = Math.round((cycleDiffs[0] * 3 + cycleDiffs[1] * 2 + cycleDiffs[2] * 1) / 6);
     } else {
-        // Standard Weighted Average (default)
-        if (cycleDiffs.length >= 3) {
-            return Math.round((cycleDiffs[0] * 3 + cycleDiffs[1] * 2 + cycleDiffs[2] * 1) / 6);
-        }
         const sum = cycleDiffs.reduce((a, b) => a + b, 0);
-        return Math.round(sum / cycleDiffs.length);
+        baseLength = Math.round(sum / cycleDiffs.length);
+    }
+
+    const latestEntry = periods[0];
+    let dropdownBuffer = 0;
+
+    // Hardcoded dropdown adjustments based on recent severity/flow logs
+    if (latestEntry.flow === "Heavy") {
+        dropdownBuffer += 1;
+    }
+    if (latestEntry.severity === "Severe") {
+        dropdownBuffer += 2;
+    }
+
+    if (mode === "regular") {
+        return cycleDiffs[0];
+    } else if (mode === "irregular") {
+        return baseLength + 3 + dropdownBuffer;
+    } else {
+        return baseLength + dropdownBuffer;
     }
 }
 
@@ -156,6 +169,7 @@ function renderUI(periods) {
         
         let tagsHtml = '';
         if (p.flow) tagsHtml += `<span class="tag">Flow: ${p.flow}</span>`;
+        if (p.severity && p.severity !== 'None') tagsHtml += `<span class="tag">Severity: ${p.severity}</span>`;
         if (p.mood) tagsHtml += `<span class="tag">Mood: ${p.mood}</span>`;
         if (p.symptoms && p.symptoms.length > 0) {
             p.symptoms.forEach(s => tagsHtml += `<span class="tag">${s}</span>`);
@@ -173,7 +187,7 @@ function renderUI(periods) {
 
     const latestPeriod = periods[0];
     const selectedMode = predictionModeSelect.value;
-    const avgCycleLength = calculateCycleLength(periods, selectedMode);
+    const avgCycleLength = calculateCycleLengthWithDropdowns(periods, selectedMode);
     
     const lastStart = new Date(latestPeriod.start_date);
     const lastEnd = new Date(latestPeriod.end_date);
@@ -217,7 +231,6 @@ function renderUI(periods) {
     const nextPeriodDate = new Date(lastStart);
     nextPeriodDate.setDate(nextPeriodDate.getDate() + avgCycleLength);
     
-    // If irregular mode is selected, show a range/buffer for transparency
     if (selectedMode === "irregular") {
         const altPeriodDate = new Date(nextPeriodDate);
         altPeriodDate.setDate(altPeriodDate.getDate() + 3);
