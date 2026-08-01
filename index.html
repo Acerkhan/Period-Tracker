@@ -44,56 +44,65 @@
         <div id="phase-tips-content" style="font-size: 0.95rem; line-height: 1.5; color: var(--text-main);"></div>
     </div>
 
-    <!-- Log Period Entry Form -->
+    <!-- Independent Log Entry Forms -->
     <div class="card">
-        <h2>Log Period Dates & Symptoms</h2>
+        <h2>Log Daily & Period Updates</h2>
+        
+        <!-- Tab Switching (Optional visual split or stacked independent forms) -->
         <form id="period-form">
-            <div class="input-row">
-                <div class="input-group">
-                    <label for="start-date">Period Start Date</label>
-                    <input type="date" id="start-date" required>
-                </div>
-                <div class="input-group">
-                    <label for="end-date">Period End Date</label>
-                    <input type="date" id="end-date" required>
-                </div>
-            </div>
-
-            <div class="input-row">
-                <div class="input-group">
-                    <label for="flow-intensity">Flow Intensity</label>
-                    <select id="flow-intensity">
-                        <option value="Normal">Normal</option>
-                        <option value="Light">Light</option>
-                        <option value="Heavy">Heavy 🌧️</option>
-                        <option value="Spotting">Spotting</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label for="symptom-severity">Cramps / Body Pain</label>
-                    <select id="symptom-severity">
-                        <option value="None">Mild / None</option>
-                        <option value="Moderate">Moderate</option>
-                        <option value="Severe">Severe ⚠️</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label for="mood-select">How are you feeling today?</label>
-                <select id="mood-select">
-                    <option value="Calm & Balanced">Calm & Balanced 🌸</option>
-                    <option value="Energetic">Energetic ✨</option>
-                    <option value="Fatigued / Tired">Fatigued / Tired 🔋</option>
-                    <option value="Irritable / Sensitive">Irritable / Sensitive 🌧️</option>
-                    <option value="Anxious / Stressed">Anxious / Stressed 🌊</option>
+            <div class="input-group" style="background: #faf5ff; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                <label for="action-type" style="color: #86198f; font-weight: 600;">What would you like to log?</label>
+                <select id="action-type">
+                    <option value="start">🩸 Log Period Start Date</option>
+                    <option value="end">🏁 Log Period End Date (Latest Active)</option>
+                    <option value="daily">📝 Log Daily Symptoms & Mood Only</option>
                 </select>
             </div>
 
-            <div class="input-group">
-                <label for="symptoms-input">Other Symptoms (comma separated)</label>
-                <input type="text" id="symptoms-input" placeholder="e.g., headache, bloating">
+            <!-- Dynamic Date Field -->
+            <div class="input-group" id="date-group">
+                <label for="single-date" id="date-label">Select Date</label>
+                <input type="date" id="single-date" required>
+            </div>
+
+            <div id="optional-details-wrapper">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="flow-intensity">Flow Intensity</label>
+                        <select id="flow-intensity">
+                            <option value="">-- None / N/A --</option>
+                            <option value="Normal">Normal</option>
+                            <option value="Light">Light</option>
+                            <option value="Heavy">Heavy 🌧️</option>
+                            <option value="Spotting">Spotting</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="symptom-severity">Cramps / Body Pain</label>
+                        <select id="symptom-severity">
+                            <option value="None">Mild / None</option>
+                            <option value="Moderate">Moderate</option>
+                            <option value="Severe">Severe ⚠️</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="mood-select">How are you feeling today?</label>
+                    <select id="mood-select">
+                        <option value="Calm & Balanced">Calm & Balanced 🌸</option>
+                        <option value="Energetic">Energetic ✨</option>
+                        <option value="Fatigued / Tired">Fatigued / Tired 🔋</option>
+                        <option value="Irritable / Sensitive">Irritable / Sensitive 🌧️</option>
+                        <option value="Anxious / Stressed">Anxious / Stressed 🌊</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="symptoms-input">Other Symptoms (comma separated)</label>
+                    <input type="text" id="symptoms-input" placeholder="e.g., headache, bloating">
+                </div>
             </div>
 
             <button type="submit" id="submit-btn">Save Entry</button>
