@@ -37,45 +37,6 @@ body {
     display: block;
 }
 
-/* Header styling */
-.top-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-}
-
-.menu-icon, .notif-icon {
-    width: 40px;
-    height: 40px;
-    background: #ffffff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.08);
-    cursor: pointer;
-    font-size: 1.1rem;
-}
-
-.greeting-box {
-    text-align: center;
-}
-
-.greeting-text {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    font-weight: 600;
-}
-
-.main-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--text-main);
-    line-height: 1.2;
-    margin-top: 4px;
-}
-
 /* Cards */
 .card {
     background: var(--card-bg);
@@ -90,7 +51,7 @@ body {
 .hero-ring-card {
     text-align: center;
     background: linear-gradient(180deg, #ffffff 0%, #fff9fb 100%);
-    padding: 30px 20px;
+    padding: 24px 20px;
 }
 
 .ring-container {
@@ -98,49 +59,58 @@ body {
     width: 220px;
     height: 220px;
     margin: 0 auto;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 0 0 12px #ffe4e6, 0 10px 25px rgba(225,29,72,0.1);
+}
+
+.phase-clock-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
 }
 
 .ring-content {
+    position: relative;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 10px;
+    max-width: 170px;
 }
 
 .phase-badge {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     color: var(--primary);
     font-weight: 800;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }
 
 .days-display {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 900;
     color: var(--text-main);
     line-height: 1.1;
-    margin-bottom: 4px;
-}
-
-.phase-subtext {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .view-cycle-btn {
     background: var(--primary-light);
     color: var(--primary);
     border: none;
-    padding: 6px 16px;
+    padding: 5px 14px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     cursor: pointer;
     display: flex;
@@ -233,8 +203,6 @@ body {
 .wellness-tip-card {
     background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
     border: 1px solid rgba(124, 58, 237, 0.1);
-    position: relative;
-    overflow: hidden;
 }
 
 .tip-header-row {
@@ -252,12 +220,6 @@ body {
     letter-spacing: 0.5px;
 }
 
-.tip-counter {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-weight: 600;
-}
-
 .tip-title {
     font-size: 1.1rem;
     font-weight: 800;
@@ -269,22 +231,6 @@ body {
     font-size: 0.85rem;
     color: #5b21b6;
     line-height: 1.4;
-    margin-bottom: 14px;
-}
-
-.explore-tips-btn {
-    background: var(--accent-purple);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 14px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
 }
 
 /* Form Styles */
