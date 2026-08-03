@@ -14,13 +14,13 @@ const submitBtn = document.getElementById("submit-btn");
 
 const currentPhaseEl = document.getElementById("current-phase");
 const currentDayEl = document.getElementById("current-day");
-const phaseMessageEl = document.getElementById("phase-message");
 const nextPeriodDateEl = document.getElementById("next-period-date");
 const nextPeriodCountdownEl = document.getElementById("next-period-countdown");
 const ovulationWindowEl = document.getElementById("ovulation-window");
 const tipsCard = document.getElementById("tips-card");
 const phaseTipsContent = document.getElementById("phase-tips-content");
 const symptomsInput = document.getElementById("symptoms-input");
+const svgPhaseSegmentsEl = document.getElementById("svg-phase-segments");
 
 let globalPeriodsCache = [];
 let globalDailyLogsCache = [];
@@ -278,39 +278,35 @@ function renderUI(periods, logs) {
     const currentDay = Math.floor((today - lastStart) / (1000 * 60 * 60 * 24)) + 1;
     let currentPhaseKey = "";
     let phaseTitleText = "";
-    let phaseSubText = "";
+
+    const bleedingDays = lastEnd ? Math.max(Math.floor((lastEnd - lastStart)/(1000*60*60*24)) + 1, 5) : 5;
+    const estimatedOvulationDay = avgCycleLength - 14;
 
     if (currentDay < 1) {
         phaseTitleText = "Menstrual Phase";
         currentDayEl.textContent = "Day 1";
-        phaseSubText = "Energy is resting 🌙";
         currentPhaseKey = "menstrual";
     } else {
         currentDayEl.textContent = `Day ${currentDay}`;
-        const bleedingDays = lastEnd ? Math.max(Math.floor((lastEnd - lastStart)/(1000*60*60*24)) + 1, 5) : 5;
-        const estimatedOvulationDay = avgCycleLength - 14;
-
         if (currentDay <= bleedingDays) {
             phaseTitleText = "Menstrual Phase";
-            phaseSubText = "Take it easy today ✨";
             currentPhaseKey = "menstrual";
         } else if (currentDay < estimatedOvulationDay - 3) {
             phaseTitleText = "Follicular Phase";
-            phaseSubText = "Energy is rising ⚡";
             currentPhaseKey = "follicular";
         } else if (currentDay >= estimatedOvulationDay - 3 && currentDay <= estimatedOvulationDay + 1) {
             phaseTitleText = "Ovulation Window 🌸";
-            phaseSubText = "Peak energy & glow ✨";
             currentPhaseKey = "ovulation";
         } else {
             phaseTitleText = "Luteal Phase";
-            phaseSubText = "Wind down & nest 🍃";
             currentPhaseKey = "luteal";
         }
     }
 
     currentPhaseEl.textContent = phaseTitleText;
-    phaseMessageEl.textContent = phaseSubText;
+
+    // Render multi-colored 4-phase clock ring with indicator dot
+    renderPhaseClockSVG(currentDay, avgCycle, bleedingDays, estimatedOvulationDay);
 
     const nextPeriodDate = new Date(lastStart);
     nextPeriodDate.setDate(nextPeriodDate.getDate() + avgCycleLength);
@@ -326,12 +322,70 @@ function renderUI(periods, logs) {
     const fertileEnd = new Date(ovulationDate);
     fertileEnd.setDate(ovulationDate.getDate() + 2);
 
-    // Short date format without the year as requested (e.g. Aug 12 – Aug 16)
     ovulationWindowEl.textContent = `${formatDateString(fertileStart)} – ${formatDateString(fertileEnd)}`;
 
     const todayString = today.toISOString().split('T')[0];
     const todayLog = logs.find(l => l.log_date === todayString);
     renderDynamicTips(currentPhaseKey, todayLog);
+}
+
+function renderPhaseClockSVG(currentDay, totalDays, bleedingDays, ovulationDay) {
+    if (!svgPhaseSegmentsEl) return;
+    svgPhaseSegmentsEl.innerHTML = "";
+
+    const radius = 95;
+    const circumference = 2 * Math.PI * radius;
+    
+    // Define exact day lengths for each phase
+    const p1End = bleedingDays;                             // Menstrual
+    const p2End = ovulationDay - 3;                         // Follicular
+    const p3End = ovulationDay + 1;                         // Ovulation Window
+    const p4End = totalDays;                                // Luteal
+
+    const phases = [
+        { start: 0, end: p1End, color: "#e11d48" },         // Red (Menstrual)
+        { start: p1End, end: p2End, color: "#38bdf8" },     // Blue (Follicular)
+        { start: p2End, end: p3End, color: "#ec4899" },     // Pink (Ovulation)
+        { start: p3End, end: p4End, color: "#8b5cf6" }      // Purple (Luteal)
+    ];
+
+    phases.forEach(p => {
+        if (p.end <= p.start) return;
+        const lengthFraction = (p.end - p.start) / totalDays;
+        const offsetFraction = p.start / totalDays;
+
+        const strokeLen = lengthFraction * circumference;
+        const strokeDasharray = `${strokeLen} ${circumference - strokeLen}`;
+        const strokeDashoffset = -offsetFraction * circumference;
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", "110");
+        circle.setAttribute("cy", "110");
+        circle.setAttribute("r", radius);
+        circle.setAttribute("fill", "none");
+        circle.setAttribute("stroke", p.color);
+        circle.setAttribute("stroke-width", "12");
+        circle.setAttribute("stroke-dasharray", strokeDasharray);
+        circle.setAttribute("stroke-dashoffset", strokeDashoffset);
+        circle.setAttribute("stroke-linecap", "round");
+        svgPhaseSegmentsEl.appendChild(circle);
+    });
+
+    // Add moving indicator dot marker like a clock
+    const safeDay = Math.min(Math.max(currentDay, 1), totalDays);
+    const angleFraction = (safeDay - 0.5) / totalDays;
+    const angle = angleFraction * 2 * Math.PI;
+    const dotX = 110 + radius * Math.cos(angle);
+    const dotY = 110 + radius * Math.sin(angle);
+
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("cx", dotX);
+    dot.setAttribute("cy", dotY);
+    dot.setAttribute("r", "8");
+    dot.setAttribute("fill", "#ffffff");
+    dot.setAttribute("stroke", "#e11d48");
+    dot.setAttribute("stroke-width", "4");
+    svgPhaseSegmentsEl.appendChild(dot);
 }
 
 function renderDynamicTips(phase, todayLog) {
