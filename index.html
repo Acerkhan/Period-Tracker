@@ -14,24 +14,18 @@
         <!-- VIEW 1: DASHBOARD -->
         <section id="view-dashboard" class="view-section active">
             
-            <!-- Top Greeting Header -->
-            <header class="top-header">
-                <div class="menu-icon">☰</div>
-                <div class="greeting-box">
-                    <span class="greeting-text">Good morning, Ifah 💖</span>
-                    <h1 class="main-title">Here’s your cycle<br>at a glance</h1>
-                </div>
-                <div class="notif-icon">🔔</div>
-            </header>
-
-            <!-- Circular Ring Hero Card -->
+            <!-- Circular Ring Hero Card with Multi-Colored 4-Phase SVG Clock -->
             <div class="card hero-ring-card">
                 <div class="ring-container">
-                    <div class="ring-progress-bg"></div>
+                    <svg class="phase-clock-svg" viewBox="0 0 220 220">
+                        <!-- Background track -->
+                        <circle cx="110" cy="110" r="95" fill="none" stroke="#f1f5f9" stroke-width="12"></circle>
+                        <!-- Dynamic Multi-Phase Segments & Indicator Marker inserted via JS -->
+                        <g id="svg-phase-segments"></g>
+                    </svg>
                     <div class="ring-content">
                         <span id="current-phase" class="phase-badge">Loading...</span>
                         <h2 id="current-day" class="days-display">-</h2>
-                        <span id="phase-message" class="phase-subtext">Energy status</span>
                         <button class="view-cycle-btn" onclick="switchView('calendar', document.querySelectorAll('.nav-item')[1])">
                             View cycle <span>›</span>
                         </button>
@@ -71,11 +65,9 @@
                 <div class="tip-content-wrapper">
                     <div class="tip-header-row">
                         <span class="tip-badge">✨ Wellness Tip</span>
-                        <span class="tip-counter">1 of 5</span>
                     </div>
                     <h3 class="tip-title">Hydrate, nourish, & glow.</h3>
                     <p id="phase-tips-content" class="tip-text">Loading wellness recommendations...</p>
-                    <button class="explore-tips-btn">Explore tips <span>›</span></button>
                 </div>
             </div>
 
