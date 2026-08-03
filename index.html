@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cycle & Wellness Tracker</title>
+    <title>Ifah - Cycle & Wellness Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -13,36 +13,75 @@
 
         <!-- VIEW 1: DASHBOARD -->
         <section id="view-dashboard" class="view-section active">
-            <h2 class="page-title">Dashboard</h2>
-
-            <!-- Overview Card -->
-            <div class="card">
-                <div class="overview-ring-container">
-                    <div id="current-phase" class="phase-badge">Loading...</div>
-                    <div id="current-day" class="days-countdown">-</div>
-                    <div class="cycle-subtext">Current Cycle Status</div>
+            
+            <!-- Top Greeting Header -->
+            <header class="top-header">
+                <div class="menu-icon">☰</div>
+                <div class="greeting-box">
+                    <span class="greeting-text">Good morning, Ifah 💖</span>
+                    <h1 class="main-title">Here’s your cycle<br>at a glance</h1>
                 </div>
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <span>Next Period</span>
-                        <strong id="next-period-date">-</strong>
-                    </div>
-                    <div class="stat-box">
-                        <span>Fertile Window</span>
-                        <strong id="ovulation-window">-</strong>
+                <div class="notif-icon">🔔</div>
+            </header>
+
+            <!-- Circular Ring Hero Card -->
+            <div class="card hero-ring-card">
+                <div class="ring-container">
+                    <div class="ring-progress-bg"></div>
+                    <div class="ring-content">
+                        <span id="current-phase" class="phase-badge">Loading...</span>
+                        <h2 id="current-day" class="days-display">-</h2>
+                        <span id="phase-message" class="phase-subtext">Energy status</span>
+                        <button class="view-cycle-btn" onclick="switchView('calendar', document.querySelectorAll('.nav-item')[1])">
+                            View cycle <span>›</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Daily Wellness Tip -->
-            <div id="tips-card" class="card" style="background: var(--purple-light); border-color: rgba(139,92,246,0.15);">
-                <h3 style="font-size: 0.95rem; color: var(--purple); margin-bottom: 6px;">💡 Daily Wellness Tip</h3>
-                <p id="phase-tips-content" style="font-size: 0.85rem; color: #475569; line-height: 1.4;">Loading tips...</p>
+            <!-- Clickable Info Cards Row (Next Period & Fertile Window) -->
+            <div class="info-cards-grid">
+                <div class="card clickable-card" onclick="switchView('calendar', document.querySelectorAll('.nav-item')[1])">
+                    <div class="card-header-row">
+                        <span class="card-label">Next Period</span>
+                        <div class="card-icon-bubble">📅</div>
+                    </div>
+                    <div class="card-main-value" id="next-period-date">-</div>
+                    <div class="card-sub-value" id="next-period-countdown">-</div>
+                    <div class="dot-indicators">
+                        <span class="active"></span><span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+
+                <div class="card clickable-card" onclick="switchView('calendar', document.querySelectorAll('.nav-item')[1])">
+                    <div class="card-header-row">
+                        <span class="card-label">Fertile Window</span>
+                        <div class="card-icon-bubble pink-bubble">🌷</div>
+                    </div>
+                    <div class="card-main-value" id="ovulation-window">-</div>
+                    <div class="card-sub-value">High chance</div>
+                    <div class="dot-indicators">
+                        <span class="active"></span><span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Wellness Tip Banner -->
+            <div id="tips-card" class="card wellness-tip-card">
+                <div class="tip-content-wrapper">
+                    <div class="tip-header-row">
+                        <span class="tip-badge">✨ Wellness Tip</span>
+                        <span class="tip-counter">1 of 5</span>
+                    </div>
+                    <h3 class="tip-title">Hydrate, nourish, & glow.</h3>
+                    <p id="phase-tips-content" class="tip-text">Loading wellness recommendations...</p>
+                    <button class="explore-tips-btn">Explore tips <span>›</span></button>
+                </div>
             </div>
 
             <!-- Modern Interactive Logging Form -->
-            <div class="card">
-                <h3 style="font-size: 1rem; margin-bottom: 14px; color: #1e293b;">Log Today's Update</h3>
+            <div class="card form-card">
+                <h3 class="section-heading">Log Today's Update</h3>
                 <form id="period-form">
                     <div class="form-group">
                         <label id="date-label">Entry Type</label>
@@ -114,7 +153,7 @@
                 <div id="calendar-grid" class="calendar-grid"></div>
                 <div style="display: flex; gap: 15px; margin-top: 16px; font-size: 0.75rem; color: var(--text-muted); justify-content: center;">
                     <span><span style="display:inline-block;width:10px;height:10px;background:var(--primary);border-radius:50%;margin-right:4px;"></span> Period</span>
-                    <span><span style="display:inline-block;width:10px;height:10px;background:#e0f2fe;border-radius:50%;margin-right:4px;"></span> Fertile Window</span>
+                    <span><span style="display:inline-block;width:10px;height:10px;background:#fbcfe8;border-radius:50%;margin-right:4px;"></span> Fertile Window</span>
                 </div>
             </div>
         </section>
@@ -129,6 +168,7 @@
 
     </div>
 
+    <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchView('dashboard', this)"><span class="icon">🏠</span>Dashboard</button>
         <button class="nav-item" onclick="switchView('calendar', this)"><span class="icon">📅</span>Calendar</button>
