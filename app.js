@@ -29,12 +29,45 @@ const phaseTipsContent = document.getElementById("phase-tips-content");
 let globalPeriodsCache = [];
 let globalDailyLogsCache = [];
 
+// Calendar Navigation State
+let calendarCurrentDate = new Date();
+
 document.addEventListener("DOMContentLoaded", () => {
+    // Set default date input to today
+    if (singleDateInput) {
+        singleDateInput.value = new Date().toISOString().split('T')[0];
+    }
+
     fetchAndRenderData();
+
     if (actionTypeSelect) {
         actionTypeSelect.addEventListener("change", updateFormLabels);
     }
+
+    // Calendar month controls
+    document.getElementById("prev-month").addEventListener("click", () => {
+        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
+        renderCalendar(globalPeriodsCache);
+    });
+
+    document.getElementById("next-month").addEventListener("click", () => {
+        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
+        renderCalendar(globalPeriodsCache);
+    });
 });
+
+// View Switching Logic (Bottom Nav)
+window.switchView = function(viewName, btnElement) {
+    document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+
+    document.getElementById(`view-${viewName}`).classList.add('active');
+    btnElement.classList.add('active');
+
+    if (viewName === 'calendar') {
+        renderCalendar(globalPeriodsCache);
+    }
+};
 
 function updateFormLabels() {
     const val = actionTypeSelect.value;
@@ -61,19 +94,17 @@ form.addEventListener("submit", async (e) => {
     submitBtn.textContent = "Saving to Cloud...";
 
     try {
-        const flowVal = flowInput && flowInput.value !== "-- None / N/A --" ? flowInput.value : null;
+        const flowVal = flowInput && flowInput.value !== "" ? flowInput.value : null;
         const severityVal = severityInput && severityInput.value !== "Mild / None" ? severityInput.value : null;
         const moodVal = moodInput ? moodInput.value : null;
         const symptomsVal = symptomsInput ? symptomsInput.value : null;
 
         if (action === "start") {
-            // Insert into macro periods table
             const { error: periodError } = await db
                 .from('periods')
                 .insert([{ start_date: selectedDate, end_date: null }]);
             if (periodError) throw periodError;
 
-            // Also auto-log day 1 in daily logs if details provided
             if (flowVal || severityVal || moodVal || symptomsVal) {
                 await upsertDailyLog(selectedDate, flowVal, severityVal, moodVal, symptomsVal);
             }
@@ -91,11 +122,11 @@ form.addEventListener("submit", async (e) => {
             }
         } 
         else {
-            // Log/Update standalone daily check-in
             await upsertDailyLog(selectedDate, flowVal, severityVal, moodVal, symptomsVal);
         }
 
         form.reset();
+        singleDateInput.value = new Date().toISOString().split('T')[0];
         updateFormLabels();
         await fetchAndRenderData();
     } catch (err) {
@@ -134,8 +165,9 @@ async function fetchAndRenderData() {
         globalDailyLogsCache = logsRes.data || [];
         
         renderUI(globalPeriodsCache, globalDailyLogsCache);
+        renderCalendar(globalPeriodsCache);
     } catch (err) {
-        historyList.innerHTML = `<li class="empty-state" style="color:red;">Failed to load data: ${err.message || err}</li>`;
+        historyList.innerHTML = `<li class="empty-state" style="color:red; text-align:center;">Failed to load data: ${err.message || err}</li>`;
         currentPhaseEl.textContent = "Error";
     }
 }
@@ -183,7 +215,7 @@ function renderUI(periods, logs) {
     historyList.innerHTML = "";
     
     if ((!periods || periods.length === 0) && (!logs || logs.length === 0)) {
-        historyList.innerHTML = `<li class="empty-state">No cycle data found. Log your first dates above.</li>`;
+        historyList.innerHTML = `<li class="empty-state" style="text-align:center; padding:20px; color:#64748b;">No cycle data found. Log your first dates above.</li>`;
         currentPhaseEl.textContent = "No Data";
         currentDayEl.textContent = "-";
         nextPeriodEl.textContent = "-";
@@ -192,7 +224,7 @@ function renderUI(periods, logs) {
         return;
     }
 
-    // Render Periods History
+    // Render History Lists
     periods.forEach((p) => {
         const li = document.createElement("li");
         li.className = "history-item";
@@ -205,7 +237,6 @@ function renderUI(periods, logs) {
         historyList.appendChild(li);
     });
 
-    // Render Daily Logs History
     logs.forEach((l) => {
         const li = document.createElement("li");
         li.className = "history-item";
@@ -243,7 +274,6 @@ function renderUI(periods, logs) {
     let currentPhaseKey = "";
     if (currentDay < 1) {
         currentPhaseEl.textContent = "Menstrual Phase";
-        currentPhaseEl.style.color = "#f43f5e";
         currentDayEl.textContent = "Day 1";
         currentPhaseKey = "menstrual";
     } else {
@@ -257,19 +287,15 @@ function renderUI(periods, logs) {
 
         if (currentDay <= bleedingDays) {
             currentPhaseEl.textContent = "Menstrual Phase";
-            currentPhaseEl.style.color = "#f43f5e";
             currentPhaseKey = "menstrual";
         } else if (currentDay < estimatedOvulationDay - 3) {
             currentPhaseEl.textContent = "Follicular Phase";
-            currentPhaseEl.style.color = "#10b981";
             currentPhaseKey = "follicular";
         } else if (currentDay >= estimatedOvulationDay - 3 && currentDay <= estimatedOvulationDay + 1) {
             currentPhaseEl.textContent = "Ovulation Window 🌸";
-            currentPhaseEl.style.color = "#0ea5e9";
             currentPhaseKey = "ovulation";
         } else {
             currentPhaseEl.textContent = "Luteal Phase";
-            currentPhaseEl.style.color = "#8b5cf6";
             currentPhaseKey = "luteal";
         }
     }
@@ -289,7 +315,6 @@ function renderUI(periods, logs) {
 
     ovulationWindowEl.textContent = `${formatDateString(fertileStart)} – ${formatDateString(fertileEnd)}`;
 
-    // Check today's specific log for dynamic tip adjustments
     const todayString = today.toISOString().split('T')[0];
     const todayLog = logs.find(l => l.log_date === todayString);
     renderDynamicTips(currentPhaseKey, todayLog);
@@ -307,10 +332,9 @@ function renderDynamicTips(phase, todayLog) {
 
     let customTip = baseTips[phase] || "Keep tracking your daily updates to receive customized wellness tips!";
 
-    // Tailor tips based on logged daily symptoms/severity
     if (todayLog) {
         if (todayLog.severity === "Severe" || todayLog.severity === "Moderate") {
-            customTip += " 💡 Note: Since you're dealing with notable cramps today, try magnesium-rich foods (like dark chocolate or bananas), herbal chamomile tea, and gentle lower-back stretches.";
+            customTip += " 💡 Note: Since you're dealing with notable cramps today, try magnesium-rich foods, herbal chamomile tea, and gentle lower-back stretches.";
         }
         if (todayLog.flow === "Heavy") {
             customTip += " 💧 Heavy flow noted today: Remember to stay extra hydrated and prioritize iron-rich nutrition.";
@@ -322,5 +346,99 @@ function renderDynamicTips(phase, todayLog) {
 
     if (phaseTipsContent) {
         phaseTipsContent.textContent = customTip;
+    }
+}
+
+// Calendar Generator Logic
+function renderCalendar(periods) {
+    const gridEl = document.getElementById("calendar-grid");
+    const monthYearEl = document.getElementById("cal-month-year");
+    if (!gridEl) return;
+
+    gridEl.innerHTML = "";
+
+    const year = calendarCurrentDate.getFullYear();
+    const month = calendarCurrentDate.getMonth();
+
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    monthYearEl.textContent = `${monthNames[month]} ${year}`;
+
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    // Adjust index so Monday is 0 (European/Standard layout)
+    const adjustedFirstDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    // Blank spaces for previous month overflow
+    for (let i = 0; i < adjustedFirstDay; i++) {
+        const emptyDiv = document.createElement("div");
+        gridEl.appendChild(emptyDiv);
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // Build period and fertile sets for fast lookup
+    const periodDaysSet = new Set();
+    const fertileDaysSet = new Set();
+
+    if (periods && periods.length > 0) {
+        const avgCycle = calculateAdaptiveCycleLength(periods);
+        periods.forEach(p => {
+            if (!p.start_date) return;
+            let start = new Date(p.start_date);
+            let end = p.end_date ? new Date(p.end_date) : new Date(start);
+            if (!p.end_date) end.setDate(end.getDate() + 4); // Default 5 day window if ongoing
+
+            // Populate period range
+            let curr = new Date(start);
+            while (curr <= end) {
+                periodDaysSet.add(curr.toISOString().split('T')[0]);
+                curr.setDate(curr.getDate() + 1);
+            }
+
+            // Populate ovulation/fertile window estimation for this cycle
+            let nextPer = new Date(start);
+            nextPer.setDate(nextPer.getDate() + avgCycle);
+            let ovDate = new Date(nextPer);
+            ovDate.setDate(ovDate.getDate() - 14);
+            let fStart = new Date(ovDate);
+            fStart.setDate(ovDate.getDate() - 3);
+            let fEnd = new Date(ovDate);
+            fEnd.setDate(ovDate.getDate() + 1);
+
+            let fCurr = new Date(fStart);
+            while (fCurr <= fEnd) {
+                fertileDaysSet.add(fCurr.toISOString().split('T')[0]);
+                fCurr.setDate(fCurr.getDate() + 1);
+            }
+        });
+    }
+
+    // Render days of current month
+    for (let day = 1; day <= totalDays; day++) {
+        const dayDiv = document.createElement("div");
+        dayDiv.className = "cal-day";
+        dayDiv.textContent = day;
+
+        const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+        if (formattedDate === todayStr) {
+            dayDiv.classList.add("today");
+        }
+
+        if (periodDaysSet.has(formattedDate)) {
+            dayDiv.classList.add("period");
+        } else if (fertileDaysSet.has(formattedDate)) {
+            dayDiv.classList.add("fertile");
+        }
+
+        // Clicking calendar day auto-fills the date in the dashboard log form
+        dayDiv.addEventListener("click", () => {
+            if (singleDateInput) {
+                singleDateInput.value = formattedDate;
+                switchView('dashboard', document.querySelector('.bottom-nav button:first-child'));
+            }
+        });
+
+        gridEl.appendChild(dayDiv);
     }
 }
