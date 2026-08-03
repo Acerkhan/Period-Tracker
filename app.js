@@ -1,7 +1,6 @@
-// --- REPLACE THESE WITH YOUR SUPABASE CREDENTIALS ---
 const SUPABASE_URL = "https://wfupmihrudgpegzykfao.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdXBtaWhydWRncGVnenlrZmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1Nzc1ODIsImV4cCI6MjEwMTE1MzU4Mn0.JTwOdPoL68DpXCJZyKiIjJvCj1auIe80NtVuSNITgD8";
-// ----------------------------------------------------
+
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -15,7 +14,9 @@ const submitBtn = document.getElementById("submit-btn");
 
 const currentPhaseEl = document.getElementById("current-phase");
 const currentDayEl = document.getElementById("current-day");
-const nextPeriodEl = document.getElementById("next-period-date");
+const phaseMessageEl = document.getElementById("phase-message");
+const nextPeriodDateEl = document.getElementById("next-period-date");
+const nextPeriodCountdownEl = document.getElementById("next-period-countdown");
 const ovulationWindowEl = document.getElementById("ovulation-window");
 const tipsCard = document.getElementById("tips-card");
 const phaseTipsContent = document.getElementById("phase-tips-content");
@@ -25,7 +26,6 @@ let globalPeriodsCache = [];
 let globalDailyLogsCache = [];
 let calendarCurrentDate = new Date();
 
-// Selected state for modern interactive chips
 let selectedAction = "daily";
 let selectedFlow = "";
 let selectedSeverity = "Mild / None";
@@ -80,7 +80,7 @@ window.switchView = function(viewName, btnElement) {
     document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
 
     document.getElementById(`view-${viewName}`).classList.add('active');
-    btnElement.classList.add('active');
+    if (btnElement) btnElement.classList.add('active');
 
     if (viewName === 'calendar') {
         renderCalendar(globalPeriodsCache);
@@ -228,7 +228,8 @@ function renderUI(periods, logs) {
         historyList.innerHTML = `<li class="empty-state" style="text-align:center; padding:20px; color:#64748b;">No cycle data found.</li>`;
         currentPhaseEl.textContent = "No Data";
         currentDayEl.textContent = "-";
-        nextPeriodEl.textContent = "-";
+        nextPeriodDateEl.textContent = "-";
+        nextPeriodCountdownEl.textContent = "-";
         ovulationWindowEl.textContent = "-";
         if (tipsCard) tipsCard.style.display = "none";
         return;
@@ -276,10 +277,13 @@ function renderUI(periods, logs) {
 
     const currentDay = Math.floor((today - lastStart) / (1000 * 60 * 60 * 24)) + 1;
     let currentPhaseKey = "";
+    let phaseTitleText = "";
+    let phaseSubText = "";
 
     if (currentDay < 1) {
-        currentPhaseEl.textContent = "Menstrual Phase";
+        phaseTitleText = "Menstrual Phase";
         currentDayEl.textContent = "Day 1";
+        phaseSubText = "Energy is resting 🌙";
         currentPhaseKey = "menstrual";
     } else {
         currentDayEl.textContent = `Day ${currentDay}`;
@@ -287,32 +291,43 @@ function renderUI(periods, logs) {
         const estimatedOvulationDay = avgCycleLength - 14;
 
         if (currentDay <= bleedingDays) {
-            currentPhaseEl.textContent = "Menstrual Phase";
+            phaseTitleText = "Menstrual Phase";
+            phaseSubText = "Take it easy today ✨";
             currentPhaseKey = "menstrual";
         } else if (currentDay < estimatedOvulationDay - 3) {
-            currentPhaseEl.textContent = "Follicular Phase";
+            phaseTitleText = "Follicular Phase";
+            phaseSubText = "Energy is rising ⚡";
             currentPhaseKey = "follicular";
         } else if (currentDay >= estimatedOvulationDay - 3 && currentDay <= estimatedOvulationDay + 1) {
-            currentPhaseEl.textContent = "Ovulation Window 🌸";
+            phaseTitleText = "Ovulation Window 🌸";
+            phaseSubText = "Peak energy & glow ✨";
             currentPhaseKey = "ovulation";
         } else {
-            currentPhaseEl.textContent = "Luteal Phase";
+            phaseTitleText = "Luteal Phase";
+            phaseSubText = "Wind down & nest 🍃";
             currentPhaseKey = "luteal";
         }
     }
 
+    currentPhaseEl.textContent = phaseTitleText;
+    phaseMessageEl.textContent = phaseSubText;
+
     const nextPeriodDate = new Date(lastStart);
     nextPeriodDate.setDate(nextPeriodDate.getDate() + avgCycleLength);
-    nextPeriodEl.textContent = formatDateString(nextPeriodDate); // Clean short format without year
+    
+    const daysUntilNext = Math.round((nextPeriodDate - today) / (1000 * 60 * 60 * 24));
+    nextPeriodDateEl.textContent = `${daysUntilNext} Days`;
+    nextPeriodCountdownEl.textContent = formatDateString(nextPeriodDate);
 
     const ovulationDate = new Date(nextPeriodDate);
     ovulationDate.setDate(ovulationDate.getDate() - 14);
     const fertileStart = new Date(ovulationDate);
-    fertileStart.setDate(ovulationDate.getDate() - 3);
+    fertileStart.setDate(ovulationDate.getDate() - 2);
     const fertileEnd = new Date(ovulationDate);
-    fertileEnd.setDate(ovulationDate.getDate() + 1);
+    fertileEnd.setDate(ovulationDate.getDate() + 2);
 
-    ovulationWindowEl.textContent = `${formatDateString(fertileStart)} – ${formatDateString(fertileEnd)}`; // Clean short format
+    // Short date format without the year as requested (e.g. Aug 12 – Aug 16)
+    ovulationWindowEl.textContent = `${formatDateString(fertileStart)} – ${formatDateString(fertileEnd)}`;
 
     const todayString = today.toISOString().split('T')[0];
     const todayLog = logs.find(l => l.log_date === todayString);
@@ -322,7 +337,7 @@ function renderUI(periods, logs) {
 function renderDynamicTips(phase, todayLog) {
     if (tipsCard) tipsCard.style.display = "block";
     let baseTips = {
-        menstrual: "Take it easy today! Drink plenty of warm water, enjoy cozy comfort foods, use a heating pad if needed, and get extra rest.",
+        menstrual: "Drink plenty of warm water, enjoy cozy comfort foods, use a heating pad if needed, and get extra rest.",
         follicular: "Your energy is starting to bounce back! Great time to tackle new tasks, walk outside, and start fresh projects.",
         ovulation: "You are likely feeling your best and most social right now! Enjoy higher energy levels and great moods.",
         luteal: "Energy might slow down as your body prepares for the next cycle. Focus on comforting meals and gentle self-care routines."
@@ -331,10 +346,10 @@ function renderDynamicTips(phase, todayLog) {
     let customTip = baseTips[phase] || "Keep tracking your daily updates!";
     if (todayLog) {
         if (todayLog.severity === "Severe" || todayLog.severity === "Moderate") {
-            customTip += " 💡 Try magnesium-rich foods and herbal tea for cramp support.";
+            customTip += " Try magnesium-rich foods and herbal tea for cramp support.";
         }
         if (todayLog.flow === "Heavy") {
-            customTip += " 💧 Remember to stay extra hydrated today.";
+            customTip += " Remember to stay extra hydrated today.";
         }
     }
     if (phaseTipsContent) phaseTipsContent.textContent = customTip;
@@ -382,9 +397,9 @@ function renderCalendar(periods) {
             let ovDate = new Date(nextPer);
             ovDate.setDate(ovDate.getDate() - 14);
             let fStart = new Date(ovDate);
-            fStart.setDate(ovDate.getDate() - 3);
+            fStart.setDate(ovDate.getDate() - 2);
             let fEnd = new Date(ovDate);
-            fEnd.setDate(ovDate.getDate() + 1);
+            fEnd.setDate(ovDate.getDate() + 2);
 
             let fCurr = new Date(fStart);
             while (fCurr <= fEnd) {
@@ -407,7 +422,7 @@ function renderCalendar(periods) {
         dayDiv.addEventListener("click", () => {
             if (singleDateInput) {
                 singleDateInput.value = formattedDate;
-                switchView('dashboard', document.querySelector('.bottom-nav button:first-child'));
+                switchView('dashboard', document.querySelectorAll('.nav-item')[0]);
             }
         });
         gridEl.appendChild(dayDiv);
