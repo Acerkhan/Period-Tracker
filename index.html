@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cycle & Wellness Tracker</title>
-    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,7 +15,7 @@
         <section id="view-dashboard" class="view-section active">
             <h2 class="page-title">Dashboard</h2>
 
-            <!-- Overview Ring Card -->
+            <!-- Overview Card -->
             <div class="card">
                 <div class="overview-ring-container">
                     <div id="current-phase" class="phase-badge">Loading...</div>
@@ -42,16 +40,16 @@
                 <p id="phase-tips-content" style="font-size: 0.85rem; color: #475569; line-height: 1.4;">Loading tips...</p>
             </div>
 
-            <!-- Quick Logging Form -->
+            <!-- Modern Interactive Logging Form -->
             <div class="card">
                 <h3 style="font-size: 1rem; margin-bottom: 14px; color: #1e293b;">Log Today's Update</h3>
                 <form id="period-form">
                     <div class="form-group">
-                        <label id="date-label">Action / Date</label>
+                        <label id="date-label">Entry Type</label>
                         <select id="action-type">
-                            <option value="daily">📝 Log Daily Check-in (Symptoms & Mood)</option>
-                            <option value="start">🩸 Log Period Start Date</option>
-                            <option value="end">🏁 Log Period End Date</option>
+                            <option value="daily">📝 Daily Check-in (Symptoms & Mood)</option>
+                            <option value="start">🩸 Period Start Date</option>
+                            <option value="end">🏁 Period End Date</option>
                         </select>
                     </div>
 
@@ -62,37 +60,37 @@
 
                     <div class="form-group">
                         <label>Flow Intensity</label>
-                        <select id="flow-intensity">
-                            <option value="">-- None / N/A --</option>
-                            <option value="Spotting">Spotting</option>
-                            <option value="Light">Light</option>
-                            <option value="Normal">Normal</option>
-                            <option value="Heavy">Heavy</option>
-                        </select>
+                        <div class="chip-group" id="flow-chips">
+                            <div class="chip selected" data-value="">None</div>
+                            <div class="chip" data-value="Spotting">Spotting</div>
+                            <div class="chip" data-value="Light">Light</div>
+                            <div class="chip" data-value="Normal">Normal</div>
+                            <div class="chip" data-value="Heavy">Heavy</div>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label>Cramps / Body Pain</label>
-                        <select id="symptom-severity">
-                            <option value="Mild / None">Mild / None</option>
-                            <option value="Moderate">Moderate</option>
-                            <option value="Severe">Severe</option>
-                        </select>
+                        <div class="chip-group" id="severity-chips">
+                            <div class="chip selected" data-value="Mild / None">Mild/None</div>
+                            <div class="chip" data-value="Moderate">Moderate</div>
+                            <div class="chip" data-value="Severe">Severe</div>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label>Mood</label>
-                        <select id="mood-select">
-                            <option value="Calm & Balanced">Calm & Balanced 🌸</option>
-                            <option value="Happy">Happy 😊</option>
-                            <option value="Anxious / Stressed">Anxious / Stressed 🌧️</option>
-                            <option value="Irritable">Irritable ⚡</option>
-                            <option value="Fatigued">Fatigued 😴</option>
-                        </select>
+                        <div class="chip-group" id="mood-chips">
+                            <div class="chip selected" data-value="Calm & Balanced">Calm 🌸</div>
+                            <div class="chip" data-value="Happy">Happy 😊</div>
+                            <div class="chip" data-value="Anxious / Stressed">Stressed 🌧️</div>
+                            <div class="chip" data-value="Irritable">Irritable ⚡</div>
+                            <div class="chip" data-value="Fatigued">Fatigued 😴</div>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Other Symptoms (comma separated)</label>
+                        <label>Other Symptoms</label>
                         <input type="text" id="symptoms-input" placeholder="e.g., headache, bloating">
                     </div>
 
@@ -113,9 +111,7 @@
                 <div class="calendar-weekdays">
                     <div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div><div>Su</div>
                 </div>
-                <div id="calendar-grid" class="calendar-grid">
-                    <!-- Populated dynamically by script -->
-                </div>
+                <div id="calendar-grid" class="calendar-grid"></div>
                 <div style="display: flex; gap: 15px; margin-top: 16px; font-size: 0.75rem; color: var(--text-muted); justify-content: center;">
                     <span><span style="display:inline-block;width:10px;height:10px;background:var(--primary);border-radius:50%;margin-right:4px;"></span> Period</span>
                     <span><span style="display:inline-block;width:10px;height:10px;background:#e0f2fe;border-radius:50%;margin-right:4px;"></span> Fertile Window</span>
@@ -127,31 +123,18 @@
         <section id="view-history" class="view-section">
             <h2 class="page-title">Past Logs & Cycles</h2>
             <div class="card" style="padding: 10px; background: transparent; border: none; box-shadow: none;">
-                <ul id="history-list" class="history-list">
-                    <!-- Populated dynamically by script -->
-                </ul>
+                <ul id="history-list" class="history-list"></ul>
             </div>
         </section>
 
     </div>
 
-    <!-- FIXED BOTTOM NAVIGATION BAR -->
     <nav class="bottom-nav">
-        <button class="nav-item active" onclick="switchView('dashboard', this)">
-            <span class="icon">🏠</span>
-            Dashboard
-        </button>
-        <button class="nav-item" onclick="switchView('calendar', this)">
-            <span class="icon">📅</span>
-            Calendar
-        </button>
-        <button class="nav-item" onclick="switchView('history', this)">
-            <span class="icon">🕒</span>
-            History
-        </button>
+        <button class="nav-item active" onclick="switchView('dashboard', this)"><span class="icon">🏠</span>Dashboard</button>
+        <button class="nav-item" onclick="switchView('calendar', this)"><span class="icon">📅</span>Calendar</button>
+        <button class="nav-item" onclick="switchView('history', this)"><span class="icon">🕒</span>History</button>
     </nav>
 
-    <!-- Custom JavaScript File -->
     <script src="app.js"></script>
 </body>
 </html>
