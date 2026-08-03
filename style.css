@@ -102,7 +102,7 @@ h2.page-title {
 }
 
 .stat-box strong {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--text-main);
 }
 
@@ -134,6 +134,31 @@ select:focus, input:focus {
     box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
 }
 
+/* Chip Selectors Styling */
+.chip-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.chip {
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-muted);
+}
+
+.chip.selected {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: 600;
+}
+
 .btn-primary {
     width: 100%;
     padding: 14px;
@@ -145,11 +170,6 @@ select:focus, input:focus {
     font-weight: 600;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25);
-    transition: opacity 0.2s;
-}
-
-.btn-primary:active {
-    opacity: 0.9;
 }
 
 .calendar-header {
@@ -194,7 +214,6 @@ select:focus, input:focus {
     font-size: 0.9rem;
     cursor: pointer;
     background: #f8fafc;
-    position: relative;
 }
 
 .cal-day.period {
@@ -276,7 +295,6 @@ select:focus, input:focus {
     font-size: 0.75rem;
     color: var(--text-muted);
     cursor: pointer;
-    transition: color 0.2s;
 }
 
 .nav-item span.icon {
