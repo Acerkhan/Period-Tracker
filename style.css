@@ -1,11 +1,11 @@
 :root {
-    --primary: #f43f5e;
+    --primary: #e11d48;
     --primary-light: #fff1f2;
-    --purple: #8b5cf6;
+    --accent-purple: #7c3aed;
     --purple-light: #f5f3ff;
-    --bg-color: #fdf2f4;
+    --bg-gradient: linear-gradient(135deg, #fff5f7 0%, #fdf4f8 50%, #f3e8ff 100%);
     --card-bg: #ffffff;
-    --text-main: #334155;
+    --text-main: #1e293b;
     --text-muted: #64748b;
     --border-color: #f1f5f9;
 }
@@ -18,9 +18,10 @@
 }
 
 body {
-    background-color: var(--bg-color);
+    background: var(--bg-gradient);
     color: var(--text-main);
     padding-bottom: 90px;
+    min-height: 100vh;
 }
 
 .app-container {
@@ -36,73 +37,265 @@ body {
     display: block;
 }
 
-h2.page-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 16px;
-    color: #1e293b;
+/* Header styling */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
 }
 
+.menu-icon, .notif-icon {
+    width: 40px;
+    height: 40px;
+    background: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.08);
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.greeting-box {
+    text-align: center;
+}
+
+.greeting-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.main-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1.2;
+    margin-top: 4px;
+}
+
+/* Cards */
 .card {
     background: var(--card-bg);
-    border-radius: 20px;
+    border-radius: 24px;
     padding: 20px;
-    box-shadow: 0 4px 20px rgba(244, 63, 94, 0.05);
-    margin-bottom: 20px;
-    border: 1px solid rgba(244, 63, 94, 0.08);
+    box-shadow: 0 10px 30px rgba(225, 29, 72, 0.04);
+    margin-bottom: 16px;
+    border: 1px solid rgba(225, 29, 72, 0.06);
 }
 
-.overview-ring-container {
+/* Hero Ring Card */
+.hero-ring-card {
     text-align: center;
+    background: linear-gradient(180deg, #ffffff 0%, #fff9fb 100%);
+    padding: 30px 20px;
+}
+
+.ring-container {
     position: relative;
-    padding: 10px 0;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 12px #ffe4e6, 0 10px 25px rgba(225,29,72,0.1);
+}
+
+.ring-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .phase-badge {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     color: var(--primary);
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.days-countdown {
-    font-size: 2.2rem;
     font-weight: 800;
-    color: #1e293b;
     margin-bottom: 4px;
 }
 
-.cycle-subtext {
-    font-size: 0.9rem;
-    color: var(--text-muted);
+.days-display {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--text-main);
+    line-height: 1.1;
+    margin-bottom: 4px;
 }
 
-.stats-grid {
+.phase-subtext {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.view-cycle-btn {
+    background: var(--primary-light);
+    color: var(--primary);
+    border: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.2s;
+}
+
+.view-cycle-btn:hover {
+    background: #ffe4e6;
+}
+
+/* Info Cards Grid */
+.info-cards-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin-top: 16px;
+    margin-bottom: 16px;
 }
 
-.stat-box {
-    background: var(--bg-color);
-    padding: 12px;
-    border-radius: 14px;
-    text-align: center;
+.clickable-card {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.stat-box span {
-    display: block;
+.clickable-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(225, 29, 72, 0.08);
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.card-label {
     font-size: 0.75rem;
     color: var(--text-muted);
+    font-weight: 700;
     text-transform: uppercase;
-    margin-bottom: 4px;
 }
 
-.stat-box strong {
+.card-icon-bubble {
+    width: 32px;
+    height: 32px;
+    background: #fff1f2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 0.9rem;
+}
+
+.pink-bubble {
+    background: #fdf2f8;
+}
+
+.card-main-value {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 2px;
+}
+
+.card-sub-value {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.dot-indicators {
+    display: flex;
+    gap: 4px;
+}
+
+.dot-indicators span {
+    flex: 1;
+    height: 3px;
+    background: #f1f5f9;
+    border-radius: 2px;
+}
+
+.dot-indicators span.active {
+    background: var(--primary);
+}
+
+/* Wellness Tip Card */
+.wellness-tip-card {
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.tip-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.tip-badge {
+    font-size: 0.75rem;
+    color: var(--accent-purple);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tip-counter {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.tip-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #4c1d95;
+    margin-bottom: 6px;
+}
+
+.tip-text {
+    font-size: 0.85rem;
+    color: #5b21b6;
+    line-height: 1.4;
+    margin-bottom: 14px;
+}
+
+.explore-tips-btn {
+    background: var(--accent-purple);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+}
+
+/* Form Styles */
+.form-card {
+    background: #ffffff;
+}
+
+.section-heading {
+    font-size: 1rem;
+    font-weight: 800;
+    margin-bottom: 16px;
     color: var(--text-main);
 }
 
@@ -112,8 +305,8 @@ h2.page-title {
 
 label {
     display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     margin-bottom: 6px;
     color: var(--text-main);
 }
@@ -121,20 +314,21 @@ label {
 select, input[type="date"], input[type="text"] {
     width: 100%;
     padding: 12px;
-    border-radius: 12px;
-    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
     font-size: 0.95rem;
-    background: #fff;
+    background: #f8fafc;
     color: var(--text-main);
     outline: none;
 }
 
 select:focus, input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1);
 }
 
-/* Chip Selectors Styling */
+/* Chip Selectors */
 .chip-group {
     display: flex;
     gap: 6px;
@@ -144,8 +338,8 @@ select:focus, input:focus {
 .chip {
     padding: 8px 12px;
     border-radius: 20px;
-    border: 1px solid #cbd5e1;
-    background: #fff;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
     font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s;
@@ -156,22 +350,23 @@ select:focus, input:focus {
     background: var(--primary-light);
     border-color: var(--primary);
     color: var(--primary);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .btn-primary {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, #f43f5e, #fb7185);
+    background: linear-gradient(135deg, #e11d48, #fb7185);
     color: white;
     border: none;
     border-radius: 14px;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25);
+    box-shadow: 0 4px 15px rgba(225, 29, 72, 0.3);
 }
 
+/* Calendar View */
 .calendar-header {
     display: flex;
     justify-content: space-between;
@@ -193,7 +388,7 @@ select:focus, input:focus {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.8rem;
     color: var(--text-muted);
     margin-bottom: 8px;
@@ -219,19 +414,20 @@ select:focus, input:focus {
 .cal-day.period {
     background: var(--primary);
     color: white;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .cal-day.fertile {
-    background: #e0f2fe;
-    color: #0369a1;
-    font-weight: 600;
+    background: #fbcfe8;
+    color: #9d174d;
+    font-weight: 700;
 }
 
 .cal-day.today {
     border: 2px solid var(--primary);
 }
 
+/* History List */
 .history-list {
     list-style: none;
 }
@@ -247,31 +443,16 @@ select:focus, input:focus {
     border: 1px solid var(--border-color);
 }
 
-.tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 6px;
-}
-
-.tag {
-    background: var(--purple-light);
-    color: var(--purple);
-    font-size: 0.75rem;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-weight: 500;
-}
-
 .delete-btn {
     background: none;
     border: none;
     color: #ef4444;
     cursor: pointer;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
+/* Bottom Navigation */
 .bottom-nav {
     position: fixed;
     bottom: 0;
@@ -304,5 +485,5 @@ select:focus, input:focus {
 
 .nav-item.active {
     color: var(--primary);
-    font-weight: 600;
+    font-weight: 700;
 }
