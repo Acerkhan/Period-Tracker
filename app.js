@@ -431,7 +431,7 @@ function renderCalendar(periods) {
     const fertileDaysSet = new Set();
 
     if (periods && periods.length > 0) {
-        const avgCycle = calculateAdaptiveCycleLength(periods);
+        const avgCycleLength = calculateAdaptiveCycleLength(periods);
         periods.forEach(p => {
             if (!p.start_date) return;
             let start = new Date(p.start_date);
@@ -445,7 +445,7 @@ function renderCalendar(periods) {
             }
 
             let nextPer = new Date(start);
-            nextPer.setDate(nextPer.getDate() + avgCycle);
+            nextPer.setDate(nextPer.getDate() + avgCycleLength);
             let ovDate = new Date(nextPer);
             ovDate.setDate(ovDate.getDate() - 14);
             let fStart = new Date(ovDate);
