@@ -306,7 +306,7 @@ function renderUI(periods, logs) {
     currentPhaseEl.textContent = phaseTitleText;
 
     // Render multi-colored 4-phase clock ring with indicator dot
-    renderPhaseClockSVG(currentDay, avgCycle, bleedingDays, estimatedOvulationDay);
+    renderPhaseClockSVG(currentDay, avgCycleLength, bleedingDays, estimatedOvulationDay);
 
     const nextPeriodDate = new Date(lastStart);
     nextPeriodDate.setDate(nextPeriodDate.getDate() + avgCycleLength);
@@ -336,17 +336,16 @@ function renderPhaseClockSVG(currentDay, totalDays, bleedingDays, ovulationDay) 
     const radius = 95;
     const circumference = 2 * Math.PI * radius;
     
-    // Define exact day lengths for each phase
-    const p1End = bleedingDays;                             // Menstrual
-    const p2End = ovulationDay - 3;                         // Follicular
-    const p3End = ovulationDay + 1;                         // Ovulation Window
-    const p4End = totalDays;                                // Luteal
+    const p1End = bleedingDays;                             
+    const p2End = ovulationDay - 3;                         
+    const p3End = ovulationDay + 1;                         
+    const p4End = totalDays;                                
 
     const phases = [
-        { start: 0, end: p1End, color: "#e11d48" },         // Red (Menstrual)
-        { start: p1End, end: p2End, color: "#38bdf8" },     // Blue (Follicular)
-        { start: p2End, end: p3End, color: "#ec4899" },     // Pink (Ovulation)
-        { start: p3End, end: p4End, color: "#8b5cf6" }      // Purple (Luteal)
+        { start: 0, end: p1End, color: "#e11d48" },         
+        { start: p1End, end: p2End, color: "#38bdf8" },     
+        { start: p2End, end: p3End, color: "#ec4899" },     
+        { start: p3End, end: p4End, color: "#8b5cf6" }      
     ];
 
     phases.forEach(p => {
@@ -371,7 +370,6 @@ function renderPhaseClockSVG(currentDay, totalDays, bleedingDays, ovulationDay) 
         svgPhaseSegmentsEl.appendChild(circle);
     });
 
-    // Add moving indicator dot marker like a clock
     const safeDay = Math.min(Math.max(currentDay, 1), totalDays);
     const angleFraction = (safeDay - 0.5) / totalDays;
     const angle = angleFraction * 2 * Math.PI;
