@@ -28,12 +28,9 @@ const phaseTipsContent = document.getElementById("phase-tips-content");
 
 let globalPeriodsCache = [];
 let globalDailyLogsCache = [];
-
-// Calendar Navigation State
 let calendarCurrentDate = new Date();
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Set default date input to today
     if (singleDateInput) {
         singleDateInput.value = new Date().toISOString().split('T')[0];
     }
@@ -44,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
         actionTypeSelect.addEventListener("change", updateFormLabels);
     }
 
-    // Calendar month controls
     document.getElementById("prev-month").addEventListener("click", () => {
         calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
         renderCalendar(globalPeriodsCache);
@@ -56,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// View Switching Logic (Bottom Nav)
 window.switchView = function(viewName, btnElement) {
     document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
@@ -224,7 +219,6 @@ function renderUI(periods, logs) {
         return;
     }
 
-    // Render History Lists
     periods.forEach((p) => {
         const li = document.createElement("li");
         li.className = "history-item";
@@ -349,7 +343,6 @@ function renderDynamicTips(phase, todayLog) {
     }
 }
 
-// Calendar Generator Logic
 function renderCalendar(periods) {
     const gridEl = document.getElementById("calendar-grid");
     const monthYearEl = document.getElementById("cal-month-year");
@@ -364,19 +357,15 @@ function renderCalendar(periods) {
     monthYearEl.textContent = `${monthNames[month]} ${year}`;
 
     const firstDayIndex = new Date(year, month, 1).getDay();
-    // Adjust index so Monday is 0 (European/Standard layout)
     const adjustedFirstDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
     const totalDays = new Date(year, month + 1, 0).getDate();
 
-    // Blank spaces for previous month overflow
     for (let i = 0; i < adjustedFirstDay; i++) {
         const emptyDiv = document.createElement("div");
         gridEl.appendChild(emptyDiv);
     }
 
     const todayStr = new Date().toISOString().split('T')[0];
-
-    // Build period and fertile sets for fast lookup
     const periodDaysSet = new Set();
     const fertileDaysSet = new Set();
 
@@ -386,16 +375,14 @@ function renderCalendar(periods) {
             if (!p.start_date) return;
             let start = new Date(p.start_date);
             let end = p.end_date ? new Date(p.end_date) : new Date(start);
-            if (!p.end_date) end.setDate(end.getDate() + 4); // Default 5 day window if ongoing
+            if (!p.end_date) end.setDate(end.getDate() + 4);
 
-            // Populate period range
             let curr = new Date(start);
             while (curr <= end) {
                 periodDaysSet.add(curr.toISOString().split('T')[0]);
                 curr.setDate(curr.getDate() + 1);
             }
 
-            // Populate ovulation/fertile window estimation for this cycle
             let nextPer = new Date(start);
             nextPer.setDate(nextPer.getDate() + avgCycle);
             let ovDate = new Date(nextPer);
@@ -407,13 +394,13 @@ function renderCalendar(periods) {
 
             let fCurr = new Date(fStart);
             while (fCurr <= fEnd) {
-                fertileDaysSet.add(fCurr.toISOString().split('T')[0]);
+                feritalDaysSetAdd = fCurr.toISOString().split('T')[0];
+                fertileDaysSet.add(feritalDaysSetAdd);
                 fCurr.setDate(fCurr.getDate() + 1);
             }
         });
     }
 
-    // Render days of current month
     for (let day = 1; day <= totalDays; day++) {
         const dayDiv = document.createElement("div");
         dayDiv.className = "cal-day";
@@ -431,7 +418,6 @@ function renderCalendar(periods) {
             dayDiv.classList.add("fertile");
         }
 
-        // Clicking calendar day auto-fills the date in the dashboard log form
         dayDiv.addEventListener("click", () => {
             if (singleDateInput) {
                 singleDateInput.value = formattedDate;
