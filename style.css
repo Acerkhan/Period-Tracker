@@ -1,190 +1,247 @@
 :root {
+    --primary: #f43f5e;
+    --primary-light: #fff1f2;
+    --purple: #8b5cf6;
+    --purple-light: #f5f3ff;
     --bg-color: #fdf2f4;
     --card-bg: #ffffff;
-    --primary: #d946ef;
-    --primary-hover: #c026d3;
-    --text-main: #374151;
-    --text-muted: #6b7280;
-    --border: #f3e8ff;
+    --text-main: #334155;
+    --text-muted: #64748b;
+    --border-color: #f1f5f9;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-main);
-    margin: 0;
+    padding-bottom: 90px;
+}
+
+.app-container {
+    max-width: 480px;
+    margin: 0 auto;
     padding: 20px;
-    display: flex;
-    justify-content: center;
 }
 
-.container {
-    width: 100%;
-    max-width: 600px;
+.view-section {
+    display: none;
+}
+.view-section.active {
+    display: block;
 }
 
-header {
-    text-align: center;
-    margin-bottom: 24px;
-}
-
-header h1 {
-    color: #be185d;
-    font-size: 1.75rem;
-    margin-bottom: 4px;
-}
-
-header p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
+h2.page-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #1e293b;
 }
 
 .card {
     background: var(--card-bg);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(244, 63, 94, 0.05);
     margin-bottom: 20px;
+    border: 1px solid rgba(244, 63, 94, 0.08);
 }
 
-.card h2 {
-    font-size: 1.2rem;
-    margin-top: 0;
-    color: #1f2937;
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 8px;
-    margin-bottom: 16px;
-}
-
-.status-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.status-box {
-    background: #faf5ff;
-    border-radius: 12px;
-    padding: 16px;
+.overview-ring-container {
     text-align: center;
-    border: 1px solid var(--border);
+    position: relative;
+    padding: 10px 0;
 }
 
-.status-box.highlight {
-    grid-column: span 2;
-    background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%);
-}
-
-.status-label {
+.phase-badge {
     font-size: 0.85rem;
-    color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 6px;
-}
-
-.status-value {
-    font-size: 1.25rem;
+    letter-spacing: 1px;
+    color: var(--primary);
     font-weight: 700;
-    color: #86198f;
+    margin-bottom: 8px;
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+.days-countdown {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 4px;
 }
 
-.input-row {
+.cycle-subtext {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
+    margin-top: 16px;
 }
 
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+.stat-box {
+    background: var(--bg-color);
+    padding: 12px;
+    border-radius: 14px;
+    text-align: center;
 }
 
-label {
-    font-size: 0.9rem;
-    font-weight: 500;
+.stat-box span {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.stat-box strong {
+    font-size: 0.95rem;
     color: var(--text-main);
 }
 
-input[type="date"], input[type="text"], select {
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    font-size: 1rem;
+.form-group {
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-main);
+}
+
+select, input[type="date"], input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.95rem;
+    background: #fff;
+    color: var(--text-main);
     outline: none;
-    background: white;
-    transition: border-color 0.2s;
 }
 
-input[type="date"]:focus, input[type="text"]:focus, select:focus {
+select:focus, input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(217, 70, 239, 0.1);
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
 }
 
-button {
-    background-color: var(--primary);
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #f43f5e, #fb7185);
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 12px;
+    border-radius: 14px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
-    margin-top: 6px;
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25);
+    transition: opacity 0.2s;
 }
 
-button:hover {
-    background-color: var(--primary-hover);
+.btn-primary:active {
+    opacity: 0.9;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.calendar-header button {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: #f1f5f9;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background: #f8fafc;
+    position: relative;
+}
+
+.cal-day.period {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+}
+
+.cal-day.fertile {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 600;
+}
+
+.cal-day.today {
+    border: 2px solid var(--primary);
 }
 
 .history-list {
     list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: 250px;
-    overflow-y: auto;
 }
 
 .history-item {
+    background: white;
+    padding: 16px;
+    border-radius: 14px;
+    margin-bottom: 12px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    padding: 12px;
-    border-bottom: 1px solid #f3f4f6;
-    font-size: 0.95rem;
-}
-
-.history-item:last-child {
-    border-bottom: none;
-}
-
-.history-details {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    border: 1px solid var(--border-color);
 }
 
 .tags {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
-    font-size: 0.8rem;
-    margin-top: 2px;
+    margin-top: 6px;
 }
 
 .tag {
-    background: #f3e8ff;
-    color: #86198f;
-    padding: 2px 6px;
-    border-radius: 4px;
+    background: var(--purple-light);
+    color: var(--purple);
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 500;
 }
 
 .delete-btn {
@@ -193,17 +250,41 @@ button:hover {
     color: #ef4444;
     cursor: pointer;
     font-size: 0.85rem;
-    padding: 4px 8px;
+    font-weight: 600;
 }
 
-.delete-btn:hover {
-    background: #fee2e2;
-    border-radius: 4px;
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+    border-top: 1px solid var(--border-color);
+    z-index: 1000;
 }
 
-.empty-state {
+.nav-item {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.75rem;
     color: var(--text-muted);
-    text-align: center;
-    font-style: italic;
-    padding: 10px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.nav-item span.icon {
+    font-size: 1.3rem;
+    margin-bottom: 2px;
+}
+
+.nav-item.active {
+    color: var(--primary);
+    font-weight: 600;
 }
