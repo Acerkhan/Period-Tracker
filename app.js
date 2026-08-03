@@ -305,7 +305,6 @@ function renderUI(periods, logs) {
 
     currentPhaseEl.textContent = phaseTitleText;
 
-    // Render multi-colored 4-phase clock ring with indicator dot
     renderPhaseClockSVG(currentDay, avgCycleLength, bleedingDays, estimatedOvulationDay);
 
     const nextPeriodDate = new Date(lastStart);
